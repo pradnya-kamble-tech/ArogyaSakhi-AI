@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: arogyasakhi-backend
+    env: python
+    rootDir: backend-fastapi
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    pythonVersion: 3.11
+    autoDeploy: true
+    healthCheckPath: /health

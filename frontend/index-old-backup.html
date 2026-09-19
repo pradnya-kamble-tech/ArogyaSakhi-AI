@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Healthcare DSS - Case Entry</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .nav a { color: var(--accent); text-decoration: none; padding: 8px 16px; border-radius: 6px; background: #f1f5f9; }
+    .nav a:hover { background: #e2e8f0; }
+    .nav .user-info { margin-left: auto; color: var(--muted); font-size: 14px; }
+    .nav .logout { background: #fef2f2; color: #dc2626; cursor: pointer; }
+    
+    .form-section { background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+    .form-section h3 { margin: 0 0 12px 0; font-size: 15px; color: #475569; }
+    
+    .vitals-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+    .vitals-grid label { display: flex; flex-direction: column; font-size: 13px; }
+    .vitals-grid input { margin-top: 4px; padding: 8px; border: 1px solid #d0d7e6; border-radius: 6px; }
+    
+    .symptoms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .symptoms-grid label { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .symptoms-grid label:hover { background: #f1f5f9; }
+    .symptoms-grid input:checked + span { font-weight: 600; color: var(--accent); }
+    
+    .patient-select { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    .patient-select input { flex: 1; padding: 10px; border: 1px solid #d0d7e6; border-radius: 6px; }
+    .patient-select button { padding: 10px 16px; }
+    
+    .treatments-list, .warnings-list { padding: 12px; border-radius: 6px; margin-top: 8px; }
+    .treatments-list { background: #ecfdf5; border-left: 4px solid var(--green); }
+    .warnings-list { background: #fef3c7; border-left: 4px solid var(--amber); }
+    .lab-tests { background: #eff6ff; padding: 12px; border-radius: 6px; margin-top: 8px; }
+    
+    .differential { background: #f8fafc; padding: 12px; border-radius: 6px; margin-top: 12px; }
+    .differential h4 { margin: 0 0 8px 0; font-size: 14px; }
+    .differential-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e2e8f0; }
+    
+    .actions-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .action-btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .action-btn.primary { background: var(--accent); color: white; }
+    .action-btn.warning { background: var(--amber); color: white; }
+    .action-btn.danger { background: var(--red); color: white; }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 900px;">
+    <h1>🏥 Healthcare DSS - Case Entry</h1>
+    
+    <div class="nav">
+      <a href="doctor.html">👨‍⚕️ Doctor Dashboard</a>
+      <a href="analytics.html">📊 Analytics</a>
+      <a href="admin.html">⚙️ Admin</a>
+      <span class="user-info" id="userInfo"></span>
+      <a href="#" class="logout" id="logoutBtn">Logout</a>
+    </div>
+
+    <div class="disclaimer" data-i18n="disclaimer_pcw">⚠️ Not a final diagnosis. AI suggestions are advisory only. Always use clinical judgment.</div>
+
+    <div class="controls">
+      <label>Language: <select id="langSelect"><option value="en">English</option><option value="hi">हिन्दी</option><option value="mr">मराठी</option></select></label>
+    </div>
+
+    <form id="caseForm">
+      <!-- Patient Selection -->
+      <div class="form-section">
+        <h3>👤 Patient Information</h3>
+        <div class="patient-select">
+          <input type="text" id="patientSearch" placeholder="Search patient by name/phone...">
+          <button type="button" onclick="searchPatient()">Search</button>
+          <button type="button" onclick="clearPatient()" class="btn-secondary">New Patient</button>
+        </div>
+        <input type="hidden" id="patientId">
+        <div id="selectedPatient" class="meta" style="margin-bottom:12px;"></div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <label>Age (years): <input type="number" id="age" min="0" max="120" value="30" required></label>
+          <label>Gender: 
+            <select id="gender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>Duration (days): <input type="number" id="duration" min="0" value="1"></label>
+        </div>
+      </div>
+
+      <!-- Symptoms -->
+      <div class="form-section">
+        <h3>🩺 Symptoms (select all that apply)</h3>
+        <div class="symptoms-grid" id="symptomsGrid">
+          <label><input type="checkbox" name="symptom" value="fever"><span>🌡️ Fever</span></label>
+          <label><input type="checkbox" name="symptom" value="cough"><span>😷 Cough</span></label>
+          <label><input type="checkbox" name="symptom" value="breathlessness"><span>😮‍💨 Breathlessness</span></label>
+          <label><input type="checkbox" name="symptom" value="chest_pain"><span>💔 Chest Pain</span></label>
+          <label><input type="checkbox" name="symptom" value="headache"><span>🤕 Headache</span></label>
+          <label><input type="checkbox" name="symptom" value="rash"><span>🔴 Rash</span></label>
+          <label><input type="checkbox" name="symptom" value="diarrhea"><span>💩 Diarrhea</span></label>
+          <label><input type="checkbox" name="symptom" value="vomiting"><span>🤮 Vomiting</span></label>
+          <label><input type="checkbox" name="symptom" value="abdominal_pain"><span>🤢 Abdominal Pain</span></label>
+          <label><input type="checkbox" name="symptom" value="fatigue"><span>😴 Fatigue</span></label>
+          <label><input type="checkbox" name="symptom" value="body_ache"><span>💪 Body Ache</span></label>
+          <label><input type="checkbox" name="symptom" value="sore_throat"><span>🗣️ Sore Throat</span></label>
+          <label><input type="checkbox" name="symptom" value="joint_pain"><span>🦴 Joint Pain</span></label>
+          <label><input type="checkbox" name="symptom" value="nausea"><span>😵 Nausea</span></label>
+          <label><input type="checkbox" name="symptom" value="dizziness"><span>💫 Dizziness</span></label>
+          <label><input type="checkbox" name="symptom" value="confusion"><span>😵‍💫 Confusion</span></label>
+          <label><input type="checkbox" name="symptom" value="swelling"><span>🎈 Swelling</span></label>
+          <label><input type="checkbox" name="symptom" value="palpitations"><span>❤️ Palpitations</span></label>
+        </div>
+      </div>
+
+      <!-- Vitals -->
+      <div class="form-section">
+        <h3>📊 Vital Signs (optional but recommended)</h3>
+        <div class="vitals-grid">
+          <label>BP Systolic (mmHg)<input type="number" id="bp_systolic" placeholder="120" min="50" max="250"></label>
+          <label>BP Diastolic (mmHg)<input type="number" id="bp_diastolic" placeholder="80" min="30" max="150"></label>
+          <label>Heart Rate (bpm)<input type="number" id="heart_rate" placeholder="72" min="30" max="200"></label>
+          <label>Temperature (°C)<input type="number" id="temperature" placeholder="37" step="0.1" min="34" max="43"></label>
+          <label>SpO2 (%)<input type="number" id="spo2" placeholder="98" min="50" max="100"></label>
+          <label>Resp. Rate (/min)<input type="number" id="respiratory_rate" placeholder="16" min="5" max="60"></label>
+        </div>
+      </div>
+
+      <!-- Medical History -->
+      <div class="form-section">
+        <h3>📋 Medical History</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <label>Allergies (comma-separated):<input type="text" id="allergies" placeholder="e.g., Penicillin, Aspirin"></label>
+          <label>Current Medications:<input type="text" id="medications" placeholder="e.g., Metformin, Aspirin"></label>
+        </div>
+        <div style="margin-top:12px;">
+          <label>Chronic Conditions:</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+            <label><input type="checkbox" name="history" value="diabetes"> Diabetes</label>
+            <label><input type="checkbox" name="history" value="hypertension"> Hypertension</label>
+            <label><input type="checkbox" name="history" value="heart_disease"> Heart Disease</label>
+            <label><input type="checkbox" name="history" value="asthma"> Asthma/COPD</label>
+            <label><input type="checkbox" name="history" value="kidney_disease"> Kidney Disease</label>
+            <label><input type="checkbox" name="history" value="cancer"> Cancer</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Severity & Attachment -->
+      <div class="form-section">
+        <h3>⚡ Severity Assessment</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <label>Perceived Severity:
+            <select id="severity">
+              <option value="Low">Low - Stable, non-urgent</option>
+              <option value="Medium" selected>Medium - Needs attention</option>
+              <option value="High">High - Urgent/Critical</option>
+            </select>
+          </label>
+          <label>Attach image (optional): <input type="file" id="attachment" accept="image/*"></label>
+        </div>
+      </div>
+
+      <div class="actions" style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" style="flex:1;min-width:200px;">🔍 Submit for AI Analysis</button>
+        <button type="button" id="exportBtn" class="btn-secondary">📥 Export</button>
+        <label class="btn-secondary" style="cursor:pointer;padding:10px 14px;background:#334155;color:white;border-radius:6px;">
+          📤 Import <input type="file" id="importFile" accept="application/json" style="display:none;">
+        </label>
+      </div>
+    </form>
+
+    <div id="result" class="result hidden"></div>
+
+    <div id="stats" style="margin-top:16px;padding:12px;background:#f1f5f9;border-radius:8px;" class="meta"></div>
+
+    <script>
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+      
+      // Display user info
+      const userName = localStorage.getItem('userName');
+      if (userName) {
+        document.getElementById('userInfo').textContent = '👤 ' + userName;
+      }
+      
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/login.html';
+      });
+      
+      // Patient search
+      async function searchPatient() {
+        const query = document.getElementById('patientSearch').value;
+        if (!query) return;
+        
+        const res = await fetch('/patients?search=' + encodeURIComponent(query));
+        const patients = await res.json();
+        
+        if (patients.length === 0) {
+          alert('No patient found. Please create a new patient in Admin panel.');
+          return;
+        }
+        
+        // For simplicity, pick first match
+        const p = patients[0];
+        document.getElementById('patientId').value = p.id;
+        document.getElementById('age').value = p.age || 30;
+        document.getElementById('gender').value = p.gender || 'Male';
+        document.getElementById('allergies').value = (p.allergies || []).join(', ');
+        document.getElementById('medications').value = (p.currentMedications || []).join(', ');
+        document.getElementById('selectedPatient').innerHTML = 
+          '<strong>Selected:</strong> ' + p.name + ' (ID: ' + p.id.slice(0,12) + '...) - ' + (p.phone || 'No phone');
+        
+        // Set chronic conditions
+        (p.chronicConditions || []).forEach(c => {
+          const cb = document.querySelector('input[name="history"][value="' + c.toLowerCase() + '"]');
+          if (cb) cb.checked = true;
+        });
+      }
+      
+      function clearPatient() {
+        document.getElementById('patientId').value = '';
+        document.getElementById('patientSearch').value = '';
+        document.getElementById('selectedPatient').innerHTML = '<em>New patient (will not be linked to patient record)</em>';
+        document.getElementById('age').value = 30;
+        document.getElementById('allergies').value = '';
+        document.getElementById('medications').value = '';
+        document.querySelectorAll('input[name="history"]').forEach(cb => cb.checked = false);
+      }
+    </script>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

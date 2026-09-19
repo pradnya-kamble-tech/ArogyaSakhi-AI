@@ -1,0 +1,2978 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Healthcare DSS - Case Entry</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+        }
+
+        .app-header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-bar a {
+            color: #667eea;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .nav-bar a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-bar .user-info {
+            margin-left: auto;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .nav-bar .logout {
+            background: #fee2e2;
+            color: #dc2626;
+            cursor: pointer;
+        }
+
+        /* Language Selector */
+        .lang-selector {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .lang-selector label {
+            font-weight: 600;
+            color: #475569;
+            margin-right: 8px;
+        }
+
+        .lang-selector select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #92400e;
+        }
+
+        /* Main Content Sections */
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-field input,
+        .form-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Symptoms Grid */
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .symptom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .symptom-checkbox:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        .symptom-checkbox input:checked+.symptom-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .symptom-checkbox input:checked {
+            accent-color: #667eea;
+        }
+
+        /* Vitals Grid */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Results Section */
+        .results-container {
+            display: none;
+        }
+
+        .results-container.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Risk Badge */
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .risk-badge.green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-badge.amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-badge.red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Emergency Banner */
+        .emergency-banner {
+            background: #fee2e2;
+            border-left: 6px solid #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .emergency-banner strong {
+            color: #991b1b;
+            font-size: 16px;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid #cbd5e1;
+        }
+
+        .info-card.success {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        .info-card.warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .info-card.info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .info-card h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .info-card ul {
+            margin: 8px 0 0 20px;
+            padding: 0;
+        }
+
+        .info-card li {
+            margin-bottom: 4px;
+        }
+
+        /* Heatmap */
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .heatmap-item {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9;
+        }
+
+        .heatmap-item.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .heatmap-item.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .heatmap-item.low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .heatmap-item .label {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .heatmap-item .value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Recording Indicator */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .recording-active {
+            color: #ef4444 !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        .voice-status {
+            font-size: 13px;
+            color: #64748b;
+            margin-left: 10px;
+            display: none;
+        }
+
+        .voice-status.show {
+            display: inline;
+        }
+
+        /* Voice Input Styles */
+        .mic-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .mic-btn-main {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .mic-btn-start {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .mic-btn-start:hover {
+            background: #dcfce7;
+        }
+
+        .mic-btn-stop {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .mic-btn-stop:hover {
+            background: #fee2e2;
+        }
+
+        .mic-btn-main:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .voice-status {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563eb;
+            animation: pulse 1.5s infinite;
+            display: none;
+        }
+
+        .voice-status.show {
+            display: inline;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        .voice-status.show {
+            display: inline-block;
+            font-weight: 600;
+            color: #4f46e5;
+            animation: pulse-ring 1.5s infinite;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Voice Assistant Demo Enhancements */
+        .voice-container-modern {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .voice-container-modern.is-listening {
+            border-color: #6366f1;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.1), 0 4px 6px -2px rgba(99, 102, 241, 0.05);
+        }
+
+        .mic-icon-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            border-radius: 50%;
+            margin-right: 16px;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .is-listening .mic-icon-wrapper {
+            background: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.2);
+            display: none;
+        }
+
+        .is-listening .pulse-ring {
+            display: block;
+            animation: pulse-grow 2s infinite;
+        }
+
+        @keyframes pulse-grow {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Reactive Body Map Highlights */
+        @keyframes region-pulse {
+            0% {
+                fill: #e2e8f0;
+                fill-opacity: 1;
+            }
+
+            50% {
+                fill: #ef4444;
+                fill-opacity: 0.6;
+                stroke: #b91c1c;
+                stroke-width: 2px;
+            }
+
+            100% {
+                fill: #e2e8f0;
+                fill-opacity: 1;
+            }
+        }
+
+        .body-region.hazard-active {
+            animation: region-pulse 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.4));
+        }
+
+        /* Clinical Vital Sparklines */
+        .sparkline-track {
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            margin-top: 6px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sparkline-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sparkline-fill.normal {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+        }
+
+        .sparkline-fill.warning {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .sparkline-fill.critical {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .vital-indicator-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Vitals Strip — Physiological Trend Monitoring */
+        .vitals-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .vital-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 12px;
+            text-align: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .vital-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .vital-card span {
+            display: block;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .vital-card strong {
+            display: block;
+            font-size: 20px;
+            font-weight: 900;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+
+        .transcript-card {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #334155;
+            min-height: 60px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .transcript-card::before {
+            content: "LIVE TRANSCRIPT";
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: #fff;
+            padding: 0 6px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 0.05em;
+        }
+
+        .detected-tag {
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid #dbeafe;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.2s;
+        }
+
+        .detected-tag:hover {
+            transform: translateY(-1px);
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+            gap: 24px;
+            margin-top: 24px;
+            align-items: start;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Focus Mode: Hide sidebars and expand center */
+        .dashboard-layout.focus-mode {
+            grid-template-columns: 1fr;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dashboard-layout.focus-mode aside {
+            display: none !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dashboard-layout.focus-mode .center-content {
+            width: 100%;
+        }
+
+        /* Transition for side panels */
+        aside {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .panel-header {
+            font-size: 14px;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .human-body-panel {
+            position: sticky;
+            top: 24px;
+        }
+
+        .body-map-container {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            border: 1px solid #f1f5f9;
+        }
+
+        .human-body-panel {
+            position: sticky;
+            top: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .human-body-panel,
+            .reasoning-panel {
+                position: static;
+            }
+        }
+
+        .app-container {
+            max-width: 1440px;
+        }
+
+        /* Human Body SVG Styling */
+        .body-region {
+            fill: #e2e8f0;
+            stroke: #cbd5e1;
+            stroke-width: 1;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .body-region:hover {
+            fill: #667eea;
+            stroke: #4f46e5;
+            filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+        }
+
+        /* Anatomical Popup Styling */
+        /* Systematic Anatomical Popup */
+        #anatomyPopup {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e2e8f0;
+            width: 90%;
+            /* Systematic width within the sidebar */
+            max-width: 280px;
+            animation: fadeInScale 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+        }
+
+        /* Overlay to dim body when selecting */
+        .body-map-container.selection-active {
+            filter: grayscale(0.5) blur(1px);
+            opacity: 0.4;
+            transition: all 0.3s ease;
+        }
+
+        .human-body-panel {
+            position: sticky;
+            top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            /* Stable container for absolute popup */
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        /* Clinical Reasoning Monitor Styling */
+        .monitor-panel {
+            position: sticky;
+            top: 24px;
+            background: #0f172a !important;
+            /* Dark subtle theme */
+            color: #f1f5f9 !important;
+            border: 1px solid #1e293b !important;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        .monitor-panel .panel-header {
+            color: #94a3b8 !important;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .monitor-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #22c55e;
+            margin-right: 6px;
+        }
+
+        /* Medical Dispatch Modal */
+        .dispatch-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dispatch-card {
+            background: white;
+            padding: 32px;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dispatch-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: pulseIcon 2s infinite;
+        }
+
+        @keyframes pulseIcon {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .consultation-id {
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #475569;
+            margin: 16px 0;
+            display: inline-block;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* Review Badge */
+        .review-badge-pulse {
+            display: none;
+            background: #3b82f6;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: badgePulse 2s infinite;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+        }
+
+        @keyframes badgePulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .log-text {
+            word-break: break-all;
+        }
+
+        .typing-cursor::after {
+            content: '█';
+            animation: blink 0.8s infinite;
+            margin-left: 2px;
+            color: currentColor;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Scanning Animation */
+        .scanner-container {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 12px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+        }
+
+        .scanner-bar {
+            position: absolute;
+            height: 100%;
+            width: 50px;
+            background: linear-gradient(90deg, transparent, #2563eb, transparent);
+            animation: scan 1.5s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                left: -50px;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* Neural Visual Scan Overlay */
+        .neural-scan-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .scan-frame {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .scan-image-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2) brightness(1.2) contrast(1.1);
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0), #3b82f6, rgba(59, 130, 246, 0));
+            box-shadow: 0 0 20px #3b82f6;
+            animation: neural-scan 2s infinite ease-in-out;
+        }
+
+        @keyframes neural-scan {
+            0% {
+                top: 0;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
+
+        .scan-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .scan-marker {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border: 1px solid #60a5fa;
+            border-radius: 2px;
+            background: rgba(96, 165, 250, 0.2);
+        }
+
+        .neural-text {
+            margin-top: 24px;
+            color: #60a5fa;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .visual-findings-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .visual-findings-badge.detected {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        body {
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.page-transitioning {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .global-navigation {
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+            margin: -20px -20px 24px -20px;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-pill {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-pill:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: #eff6ff;
+            transform: translateY(-1px);
+        }
+
+        .nav-pill:active {
+            transform: scale(0.96);
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Global Navigation -->
+    <div class="global-navigation">
+        <div class="nav-group">
+            <button class="nav-pill" onclick="handleNavigation('back')">
+                <span>⬅️</span> Back
+            </button>
+            <button class="nav-pill" onclick="handleNavigation('next')">
+                Next <span>➡️</span>
+            </button>
+        </div>
+        <div style="font-size: 11px; font-weight: 900; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase;">
+        </div>
+        <div class="nav-group">
+            <button class="nav-pill" onclick="window.location.reload()">
+                <span>🔄</span> Reset Workspace
+            </button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <div class="app-header">
+            <h1>🏥 <span data-i18n="title_pcw">Healthcare DSS - Case Entry</span></h1>
+            <div class="subtitle" data-i18n="subtitle_pcw">Clinical Decision Support System — Primary Health Centre
+                Edition
+            </div>
+        </div>
+
+
+
+        <!-- Language & Navigation -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div class="lang-selector">
+                <label data-i18n="lang_label">🌐 Language:</label>
+                <select id="langSelect">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <!-- Status Badge -->
+                <div id="connectionStatus"
+                    style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
+                    <span id="statusDot"
+                        style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></span>
+                    <span id="statusText">CLOUD CONNECTED</span>
+                    <span id="syncCounter"
+                        style="display: none; background: #ef4444; color: #fff; padding: 1px 6px; border-radius: 4px; margin-left: 4px;">0</span>
+                </div>
+                <button class="action-btn secondary" id="toggleSpecialistHub"
+                    style="padding: 8px 16px; font-size: 13px;">👨‍⚕️ Specialist Hub</button>
+                <button class="action-btn secondary" id="backToIntake"
+                    style="padding: 8px 16px; font-size: 13px; display: none;">🏠 Intake Home</button>
+            </div>
+        </div>
+
+        <div class="dashboard-layout">
+            <!-- LEFT PANEL: Anatomical Focus -->
+            <aside class="panel human-body-panel">
+                <div class="panel-header">
+                    <span>👤 <span data-i18n="body_panel_title">Anatomical Focus</span></span>
+                </div>
+                <div class="body-map-container">
+                    <svg id="humanBodySvg" viewBox="0 0 200 450" width="100%" height="auto"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path id="head" d="M100,20 Q125,20 125,50 Q125,80 100,80 Q75,80 75,50 Q75,20 100,20 Z"
+                            class="body-region" />
+                        <rect id="neck" x="91" y="75" width="18" height="15" fill="#e2e8f0" stroke="#cbd5e1"
+                            class="body-region" />
+                        <path id="chest" d="M70,90 L130,90 L125,160 L75,160 Z" class="body-region" />
+                        <path id="abdomen" d="M75,165 L125,165 L120,240 L80,240 Z" class="body-region" />
+                        <rect id="rightArm" x="45" y="90" width="20" height="130" rx="10" class="body-region" />
+                        <rect id="leftArm" x="135" y="90" width="20" height="130" rx="10" class="body-region" />
+                        <rect id="rightLeg" x="75" y="245" width="22" height="180" rx="11" class="body-region" />
+                        <rect id="leftLeg" x="103" y="245" width="22" height="180" rx="11" class="body-region" />
+                        <circle id="systemic" cx="100" cy="430" r="15" class="body-region" fill="#f1f5f9" />
+                        <text x="100" y="434" text-anchor="middle" font-size="8" font-weight="bold" fill="#64748b"
+                            style="pointer-events: none;">GEN</text>
+                    </svg>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <span
+                        style="font-size:10px; background:#f1f5f9; padding:4px; border-radius:4px; text-align:center; color:#64748b; font-weight:700;">CRANIAL</span>
+                    <span
+                        style="font-size:10px; background:#f1f5f9; padding:4px; border-radius:4px; text-align:center; color:#64748b; font-weight:700;">THORACIC</span>
+                    <span
+                        style="font-size:10px; background:#f1f5f9; padding:4px; border-radius:4px; text-align:center; color:#64748b; font-weight:700;">ABDOMINAL</span>
+                    <span
+                        style="font-size:10px; background:#f1f5f9; padding:4px; border-radius:4px; text-align:center; color:#64748b; font-weight:700;">SYSTEMIC</span>
+                </div>
+
+                <!-- ╔══ CLINICAL GUIDANCE BRIDGE ══╗ -->
+                <div id="clinicalGuidanceBridge" style="
+                    margin-top: 16px;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                    border-radius: 14px;
+                    padding: 14px 16px;
+                    border: 1px solid rgba(99, 102, 241, 0.3);
+                    box-shadow: 0 4px 20px rgba(99,102,241,0.15);
+                    position: relative;
+                    overflow: hidden;
+                    min-height: 96px;
+                    transition: all 0.3s ease;
+                ">
+                    <!-- Animated background pulse -->
+                    <div style="
+                        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                        background: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 60%);
+                        pointer-events: none;
+                    "></div>
+
+                    <!-- Header bar -->
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span id="guidanceIcon" style="font-size: 18px; transition: all 0.3s;">🩺</span>
+                        <span
+                            style="font-size: 9px; font-weight: 900; color: #6366f1; text-transform: uppercase; letter-spacing: 2px;"
+                            data-i18n="guide.header">Clinical Assistant</span>
+                        <span id="guidancePulse" style="
+                            width: 6px; height: 6px; border-radius: 50%; background: #22c55e;
+                            box-shadow: 0 0 6px #22c55e; margin-left: auto;
+                            animation: pulse-dot 2s infinite;
+                        "></span>
+                    </div>
+
+                    <!-- Region label -->
+                    <div id="guidanceRegionLabel" style="
+                        font-size: 10px; font-weight: 800; color: #94a3b8;
+                        text-transform: uppercase; letter-spacing: 1px;
+                        margin-bottom: 6px; transition: all 0.3s;
+                    " data-i18n="guide.idle_region">No region selected</div>
+
+                    <!-- Main guidance text -->
+                    <div id="guidanceText" style="
+                        font-size: 12px; font-weight: 600; color: #e2e8f0;
+                        line-height: 1.55; transition: all 0.4s ease;
+                    " data-i18n="guide.idle_text">Touch a body region to get clinical guidance for that area.</div>
+
+                    <!-- Alert tip (shows for high-risk regions) -->
+                    <div id="guidanceTip" style="
+                        display: none;
+                        margin-top: 10px; padding: 7px 10px;
+                        background: rgba(239,68,68,0.12);
+                        border-left: 3px solid #ef4444;
+                        border-radius: 6px;
+                        font-size: 11px; color: #fca5a5; font-weight: 700;
+                        transition: all 0.3s;
+                    "></div>
+                </div>
+
+                <!-- ╔══ SYMPTOM QUICK-REFERENCE TABLE ══╗ -->
+                <div style="margin-top: 14px;">
+                    <!-- Toggle Button -->
+                    <button id="toggleSymptomTable" onclick="toggleRefTable()" style="
+                        width: 100%; padding: 9px 14px;
+                        background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px;
+                        display: flex; align-items: center; justify-content: space-between;
+                        cursor: pointer; font-size: 11px; font-weight: 800;
+                        color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;
+                        transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+                    ">
+                        <span style="display:flex;align-items:center;gap:6px;">📋 <span id="refTableLabel">Symptom →
+                                Condition Table</span></span>
+                        <span id="refTableChevron"
+                            style="font-size: 14px; transition: transform 0.3s; color:#6366f1;">▲</span>
+                    </button>
+
+                    <!-- The Table -- OPEN BY DEFAULT -->
+                    <div id="symptomRefTable" style="
+                        display: block;
+                        margin-top: 8px;
+                        border-radius: 10px;
+                        overflow: hidden;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+                        animation: guideFadeIn 0.3s ease;
+                        max-height: 380px;
+                        overflow-y: auto;
+                    ">
+                        <!-- Table Header: 3 columns -->
+                        <div style="
+                            display: grid; grid-template-columns: 38% 28% 34%;
+                            background: #1e293b; padding: 8px 10px;
+                            position: sticky; top: 0; z-index: 2;
+                            gap: 4px;
+                        ">
+                            <span class="ref-col-symptom"
+                                style="font-size: 9px; font-weight: 900; color: #6366f1; text-transform: uppercase; letter-spacing: 1px;">🩺
+                                Symptom</span>
+                            <span class="ref-col-bodypart"
+                                style="font-size: 9px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">📍
+                                Body Part</span>
+                            <span class="ref-col-cancause"
+                                style="font-size: 9px; font-weight: 900; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">⚠️
+                                Can Cause</span>
+                        </div>
+
+                        <!-- Table Rows (rendered by JS) -->
+                        <div id="symptomRefRows"></div>
+                    </div>
+                </div>
+
+                <!-- Anatomical Selection Popup -->
+                <div id="anatomyPopup">
+                    <div class="popup-header">
+                        <span id="regionTitle">Select Symptoms</span>
+                        <span class="popup-close" onclick="closeAnatomyPopup()">&times;</span>
+                    </div>
+                    <div id="popupOptions"></div>
+                    <button class="popup-confirm-btn" id="confirmAnatomyBtn">Confirm Selection</button>
+                </div>
+            </aside>
+
+            <!-- CENTER PANEL: Clinical Entry & Results -->
+            <main class="center-content">
+                <!-- Disclaimer -->
+                <div class="disclaimer">
+                    ⚠️ <strong data-i18n="disclaimer_label">Clinical Disclaimer:</strong> <span
+                        data-i18n="disclaimer_pcw">This system is a decision-support tool. Final diagnosis authority
+                        remains with licensed medical professionals.</span>
+                </div>
+
+                <div id="inputForm">
+                    <form id="caseForm">
+                        <!-- Patient Information -->
+                        <div class="section">
+                            <div class="section-title"><span data-i18n="soap.presentation">👤 Patient Information</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-field">
+                                    <label data-i18n="name_label">Patient Name:</label>
+                                    <input type="text" id="patientName" placeholder="e.g. Rahul Sharma" required>
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="age_label">Age (years):</label>
+                                    <input type="number" id="age" min="0" max="120" value="30" required>
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="gender_label">Gender:</label>
+                                    <select id="gender">
+                                        <option value="Male" data-i18n="gender.male">Male</option>
+                                        <option value="Female" data-i18n="gender.female">Female</option>
+                                        <option value="Other" data-i18n="gender.other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="duration_label">Duration (days):</label>
+                                    <input type="number" id="duration" min="0" value="1">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="severity_label">Severity:</label>
+                                    <select id="severity">
+                                        <option value="Low" data-i18n="severity.low">Low - Stable</option>
+                                        <option value="Medium" data-i18n="severity.medium" selected>Medium - Needs
+                                            attention
+                                        </option>
+                                        <option value="High" data-i18n="severity.high">High - Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Symptoms -->
+                        <div class="section">
+                            <div class="section-title"
+                                style="display: flex; align-items: center; justify-content: space-between;">
+                                <span>🩺 <span data-i18n="symptoms_legend">Symptoms (select all that
+                                        apply)</span></span>
+                                <div class="mic-controls">
+                                    <span id="voiceStatus" class="voice-status">🎙️ Listening...</span>
+                                    <button type="button" id="startMicBtn" class="mic-btn-main mic-btn-start"
+                                        title="Start Voice Input">
+                                        <span>🎤 Start Voice</span>
+                                    </button>
+                                    <button type="button" id="stopMicBtn" class="mic-btn-main mic-btn-stop hidden"
+                                        title="Stop Voice Input">
+                                        <span>⏹️ Stop</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Improved Voice Assistant UI -->
+                            <div id="voiceAssistantContainer" class="voice-container-modern">
+                                <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                                    <div class="mic-icon-wrapper">
+                                        <div class="pulse-ring"></div>
+                                        <span style="font-size: 20px; position: relative; z-index: 2;">🎙️</span>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div
+                                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0;"
+                                                data-i18n="voice_assistant_title">Voice
+                                                Clinical Assistant</h3>
+                                            <span id="voiceStatus" class="voice-status" style="margin-top: -2px;"
+                                                data-i18n="voice_status_standby">Standby</span>
+                                        </div>
+                                        <p style="font-size: 12px; color: #64748b; margin: 0;"
+                                            data-i18n="voice_instructions">
+                                            Speak keywords like "fever",
+                                            "cough" or durations like "3 days"</p>
+                                    </div>
+                                </div>
+
+                                <!-- Visualizer Area -->
+                                <div id="voiceVisualizerBox"
+                                    style="height: 32px; width: 100%; background: #fdfdfd; border-radius: 8px; margin-bottom: 16px; overflow: hidden; border: 1px solid #f1f5f9;">
+                                    <canvas id="voiceVisualizer"
+                                        style="width: 100%; height: 100%; display: block; opacity: 0.4;"></canvas>
+                                </div>
+
+                                <div id="voicePreview" class="transcript-card">
+                                    <span id="liveTranscriptDisplay" style="color: #94a3b8;"
+                                        data-i18n="voice_listening_placeholder">Click 'Start Voice' to
+                                        begin...</span>
+                                </div>
+
+                                <div class="form-field" style="margin-bottom: 0;">
+                                    <label
+                                        style="font-weight: 600; color: #4b5563; display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px;">
+                                        <span style="text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;"
+                                            data-i18n="final_transcript_label">Final
+                                            Transcript</span>
+                                        <button type="button" id="clearVoiceBtn"
+                                            style="background: none; border: none; color: #4f46e5; cursor: pointer; text-decoration: none; font-weight: 700;"
+                                            data-i18n="btn_reset">RESET</button>
+                                    </label>
+                                    <textarea id="finalVoiceTranscript"
+                                        style="width: 100%; height: 80px; padding: 12px; border: 1px solid #f1f5f9; border-radius: 10px; font-size: 14px; resize: vertical; background: #fff; transition: border-color 0.2s;"
+                                        placeholder="Transcription history..."></textarea>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                                    <button type="button" id="startMicBtn" class="mic-btn-main mic-btn-start"
+                                        style="flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <span data-i18n="btn_start_recording">🎤 Start Recording</span>
+                                    </button>
+                                    <button type="button" id="stopMicBtn" class="mic-btn-main mic-btn-stop hidden"
+                                        style="flex: 1; padding: 12px; border-radius: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <span data-i18n="btn_stop_recording">⏹️ Stop Recording</span>
+                                    </button>
+                                </div>
+
+                                <!-- Unified Review Container -->
+                                <div id="voiceReviewContainer"
+                                    style="margin-top: 20px; display: none; padding: 16px; background: #f0f7ff; border-radius: 14px; border: 1px solid #dbeafe; animation: slideUp 0.3s ease-out;">
+                                    <div
+                                        style="font-size: 14px; font-weight: 800; color: #1e40af; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                        <span
+                                            style="background: #fff; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">💡</span>
+                                        <span data-i18n="voice_review_title">Suggested Form Updates</span>
+                                    </div>
+
+                                    <div id="reviewSymptomsSection" style="margin-bottom: 12px; display: none;">
+                                        <div id="reviewSymptomsList" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        </div>
+                                    </div>
+
+                                    <div id="reviewDurationSection" style="margin-bottom: 16px; display: none;">
+                                        <div
+                                            style="font-size: 11px; font-weight: 700; color: #60a5fa; text-transform: uppercase; margin-bottom: 4px;">
+                                            Detected Duration:</div>
+                                        <div id="reviewDurationText"
+                                            style="font-size: 15px; font-weight: 700; color: #1e3a8a;">
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 12px;">
+                                        <button type="button" id="voiceApplyBtn"
+                                            style="flex: 2; background: #2563eb; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);"
+                                            data-i18n="btn_apply_updates">Apply
+                                            Updates</button>
+                                        <button type="button" id="voiceDiscardBtn"
+                                            style="flex: 1; background: #fff; color: #64748b; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;"
+                                            data-i18n="btn_discard">Discard</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <style>
+                                @keyframes slideUp {
+                                    from {
+                                        opacity: 0;
+                                        transform: translateY(10px);
+                                    }
+
+                                    to {
+                                        opacity: 1;
+                                        transform: translateY(0);
+                                    }
+                                }
+                            </style>
+
+                            <div class="symptoms-grid" id="symptomsGrid">
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="fever">
+                                    <span class="symptom-label">🌡️ <span data-i18n="symptom.fever">Fever</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="cough">
+                                    <span class="symptom-label">😷 <span data-i18n="symptom.cough">Cough</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="breathlessness">
+                                    <span class="symptom-label">😮‍💨 <span
+                                            data-i18n="symptom.breathlessness">Breathlessness</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="chest_pain">
+                                    <span class="symptom-label">💔 <span data-i18n="symptom.chest_pain">Chest
+                                            Pain</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="headache">
+                                    <span class="symptom-label">🤕 <span
+                                            data-i18n="symptom.headache">Headache</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="rash">
+                                    <span class="symptom-label">🔴 <span data-i18n="symptom.rash">Rash</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="diarrhea">
+                                    <span class="symptom-label">💩 <span
+                                            data-i18n="symptom.diarrhea">Diarrhea</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="vomiting">
+                                    <span class="symptom-label">🤮 <span
+                                            data-i18n="symptom.vomiting">Vomiting</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="abdominal_pain">
+                                    <span class="symptom-label">🤢 <span data-i18n="symptom.abdominal_pain">Abdominal
+                                            Pain</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="fatigue">
+                                    <span class="symptom-label">😴 <span
+                                            data-i18n="symptom.fatigue">Fatigue</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="body_ache">
+                                    <span class="symptom-label">💪 <span data-i18n="symptom.body_ache">Body
+                                            Ache</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="sore_throat">
+                                    <span class="symptom-label">🗣️ <span data-i18n="symptom.sore_throat">Sore
+                                            Throat</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="joint_pain">
+                                    <span class="symptom-label">🦴 <span data-i18n="symptom.joint_pain">Joint
+                                            Pain</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="nausea">
+                                    <span class="symptom-label">😵 <span data-i18n="symptom.nausea">Nausea</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="dizziness">
+                                    <span class="symptom-label">💫 <span
+                                            data-i18n="symptom.dizziness">Dizziness</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="confusion">
+                                    <span class="symptom-label">😵‍💫 <span
+                                            data-i18n="symptom.confusion">Confusion</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="swelling">
+                                    <span class="symptom-label">🎈 <span
+                                            data-i18n="symptom.swelling">Swelling</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="palpitations">
+                                    <span class="symptom-label">❤️ <span
+                                            data-i18n="symptom.palpitations">Palpitations</span></span>
+                                </label>
+                                <label class="symptom-checkbox">
+                                    <input type="checkbox" name="symptom" value="high_bp">
+                                    <span class="symptom-label">📈 <span data-i18n="symptom.high_bp">High Blood
+                                            Pressure</span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Vital Signs -->
+                        <div class="section">
+                            <div class="section-title">📊 <span data-i18n="vitals_section">Vital Signs (optional but
+                                    recommended)</span>
+                            </div>
+                            <div class="vitals-grid">
+                                <div class="form-field">
+                                    <label data-i18n="bp_systolic_label">BP Systolic (mmHg)</label>
+                                    <input type="number" id="bp_systolic" placeholder="120" min="50" max="250">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="bp_diastolic_label">BP Diastolic (mmHg)</label>
+                                    <input type="number" id="bp_diastolic" placeholder="80" min="30" max="150">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="pulse_label">Heart Rate (bpm)</label>
+                                    <input type="number" id="heart_rate" placeholder="72" min="30" max="200">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="temp_label">Temperature (°C)</label>
+                                    <input type="number" id="temperature" placeholder="37" step="0.1" min="34" max="43">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="spo2_label">SpO2 (%)</label>
+                                    <input type="number" id="spo2" placeholder="98" min="50" max="100">
+                                </div>
+                                <div class="form-field">
+                                    <label data-i18n="resp_rate_label">Resp. Rate (/min)</label>
+                                    <input type="number" id="respiratory_rate" placeholder="16" min="5" max="60">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical History -->
+                        <div class="section">
+                            <div class="section-title"><span data-i18n="medical_history">📋 Medical History</span></div>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+                                <div class="form-field">
+                                    <label style="color: #059669;" data-i18n="allergies_label">Allergies
+                                        (comma-separated):</label>
+                                    <input type="text" id="allergies" data-i18n-placeholder="allergies_placeholder"
+                                        placeholder="e.g., Penicillin, Aspirin">
+                                </div>
+                                <div class="form-field">
+                                    <label style="color: #059669;" data-i18n="meds_label">Current Medications:</label>
+                                    <input type="text" id="current_medications" data-i18n-placeholder="meds_placeholder"
+                                        placeholder="e.g., Metformin, Aspirin">
+                                </div>
+                            </div>
+
+                            <div class="form-field">
+                                <label style="color: #059669; margin-bottom: 12px; display: block;"
+                                    data-i18n="chronic_conditions_label">Chronic Conditions:</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Diabetes"> <span
+                                            data-i18n="history.diabetes">Diabetes</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Hypertension"> <span
+                                            data-i18n="history.hypertension">Hypertension</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Heart Disease"> <span
+                                            data-i18n="history.heart_disease">Heart Disease</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Asthma/COPD"> <span
+                                            data-i18n="history.asthma">Asthma/COPD</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Kidney Disease"> <span
+                                            data-i18n="history.kidney_disease">Kidney Disease</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" value="Cancer"> <span
+                                            data-i18n="history.cancer">Cancer</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="chronic_condition" id="history_pregnancy"
+                                            value="pregnancy"> <span data-i18n="history.pregnancy">Pregnancy</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Attachment (Optional) -->
+                        <div class="section" id="attachmentSection">
+                            <div class="section-title">📎 UPLOAD IMAGE <span
+                                    style="font-size:13px;font-weight:400;color:#64748b;">(Optional)</span></div>
+                            <div class="form-field">
+                                <label style="color:#475569;" for="patientImageUpload">
+                                    Upload Patient Image (JPG / PNG only):
+                                </label>
+                                <input type="file" id="patientImageUpload" accept=".jpg,.jpeg,.png"
+                                    style="width:100%;padding:10px 12px;border:1px dashed #cbd5e1;border-radius:6px;font-size:14px;background:#f8fafc;cursor:pointer;">
+                                <div id="attachmentPreview"
+                                    style="margin-top:10px;font-size:13px;color:#475569;display:none;">
+                                    <strong>📄 Attached:</strong>
+                                    <span id="attachmentInfo"></span>
+                                </div>
+                                <div id="attachmentError"
+                                    style="margin-top:8px;font-size:13px;color:#dc2626;display:none;">
+                                    ❌ Invalid file type. Only JPG and PNG images are accepted.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            🔍 <span data-i18n="submit_button">Submit for Clinical Assessment</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="section hidden">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p style="margin-top: 16px; color: #64748b;" data-i18n="analyzing_case">🔄 Processing clinical
+                            assessment via
+                            Clinical Reasoning Module...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer" class="results-container">
+                    <!-- Emergency Banner (conditional) -->
+                    <div id="emergencyBanner" class="emergency-banner hidden">
+                        <strong>🚨 <span data-i18n="emergency">URGENT: High-risk case - seek immediate medical
+                                attention!</span></strong>
+                    </div>
+
+                    <!-- Main Diagnosis -->
+                    <div class="section">
+                        <div id="reviewBadge" class="review-badge-pulse">
+                            <span class="status-dot" style="background: white; box-shadow: 0 0 8px white;"></span>
+                            Consultation Pending Review
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div class="section-title">🎯 <span data-i18n="ai_suggestion">Clinical Assessment
+                                    Result</span>
+                            </div>
+                            <div id="riskBadge" class="risk-badge"></div>
+                        </div>
+                        <div id="diagnosisText"
+                            style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 12px;">
+                        </div>
+                        <div id="confidenceMetrics" style="color: #64748b; font-size: 14px;"></div>
+
+                        <!-- Triage Directive Banner -->
+                        <div id="triageDirective"
+                            style="margin-top: 16px; display: none; padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 12px; display: flex; align-items: center; gap: 10px; border-left: 4px solid #000;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <!-- NEW: Vitals Visualizer -->
+                    <div class="section" id="vitalsVisualizerSection">
+                        <div class="section-title">📊 Physiological Trend Monitoring</div>
+                        <div id="vitalsVisualizer" class="vitals-strip" style="margin-top: 15px;"></div>
+                    </div>
+
+                    <!-- Risk Heatmap -->
+                    <div class="section">
+                        <div class="section-title" data-i18n="heatmap_title">📈 Structured Risk Stratification Heatmap
+                        </div>
+                        <div class="heatmap" id="heatmap"></div>
+                    </div>
+
+                    <!-- Clinical Summary -->
+                    <div class="section" id="clinicalSummarySection">
+                        <div class="section-title" data-i18n="summary_header">📋 Clinical Summary</div>
+                        <div id="clinicalSummary" style="line-height: 1.6; color: #475569;"></div>
+                    </div>
+
+                    <!-- Explainability Panel -->
+                    <div class="section" id="explainabilityPanel" style="border-left: 4px solid #667eea;">
+                        <div class="section-title" data-i18n="reasoning_trail">🧠 Clinical Reasoning Trail</div>
+                        <p style="font-size: 13px; color: #64748b; margin: 0 0 12px 0;" data-i18n="reasoning_help">The
+                            following
+                            factors
+                            were used by the Clinical
+                            Reasoning Module to generate this assessment:</p>
+                        <div id="explainVisualAnalysis" style="margin-bottom: 12px;"></div>
+                        <div id="explainTriggeredSymptoms" style="margin-bottom: 12px;"></div>
+                        <div id="explainTriggeredVitals" style="margin-bottom: 12px;"></div>
+                        <div id="explainRiskThresholds" style="margin-bottom: 12px;"></div>
+                        <div id="explainPatternLogic" style="margin-bottom: 12px;"></div>
+                        <div id="explainDCI" style="margin-bottom: 4px;"></div>
+                        <p style="font-size: 11px; color: #94a3b8; margin: 8px 0 0 0;" data-i18n="dci_disclaimer">⚕️ The
+                            Diagnostic
+                            Certainty Index reflects data
+                            completeness, not diagnostic accuracy.</p>
+                    </div>
+
+                    <!-- Analysis Reasoning -->
+                    <div class="section">
+                        <div class="section-title" data-i18n="reasoning_trail_detailed">🔍 Clinical Reasoning Trail
+                            (Detailed)
+                        </div>
+                        <div id="analysisReasoning" style="line-height: 1.6; color: #475569;"></div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div id="recommendationsContainer"></div>
+
+                    <!-- Differential Diagnosis -->
+                    <div class="section" id="differentialSection">
+                        <div class="section-title">🧠 Differential Diagnosis (DDx)</div>
+                        <div id="differentialList"></div>
+                    </div>
+
+                    <!-- Doctor Review Section (Second Opinion) -->
+                    <div id="doctorReviewSection" class="section hidden"
+                        style="border: 2px solid #10b981; background: #f0fdf4;">
+                        <div class="section-title" data-i18n="doctor_review_header">👨‍⚕️ Official Second Opinion
+                            (Doctor
+                            Review)</div>
+                        <div id="doctorReviewContent" style="line-height: 1.6; color: #1e293b;">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="action-btn primary" id="newCaseBtn" data-i18n="go_back">➕ New Case</button>
+                        <button class="action-btn secondary" id="exportBtn" data-i18n="export_button">📄 Export
+                            Case</button>
+                        <button class="action-btn secondary" id="printBtn" data-i18n="print_button">🖨️ Print</button>
+                        <button class="action-btn secondary" id="escalateBtn" data-i18n="escalate_button">👨‍⚕️ Request
+                            Second
+                            Opinion</button>
+                    </div>
+            </main>
+
+            <!-- RIGHT PANEL: Clinical Reasoning Monitor -->
+            <aside class="panel monitor-panel">
+                <div class="panel-header">
+                    <span>📡 <span data-i18n="monitor_title">Clinical Monitor</span></span>
+                </div>
+
+                <div class="monitor-stat">
+                    <span>SYSTEM STATUS</span>
+                    <span style="color: #22c55e;"><span class="status-dot"></span>ACTIVE</span>
+                </div>
+
+                <div class="monitor-stat">
+                    <span>SYMPTOMS LOGGED</span>
+                    <span id="activeSymptomsCount" style="color: #38bdf8; font-weight: 800;">0</span>
+                </div>
+
+                <div id="analyzerStatus" style="margin-top: 16px;">
+                    <div class="analyzing-text" id="analyzingLabel">Analyzing Input...</div>
+                    <div class="scanner-container" id="scannerLine">
+                        <div class="scanner-bar"></div>
+                    </div>
+                </div>
+
+                <div class="monitor-log" id="clinicalEventLog">
+                    <!-- Entries injected here -->
+                </div>
+
+                <div class="section-title" style="margin-top: 24px; font-size: 11px; opacity: 0.7;">
+                    👨‍⚕️ Specialist Alerts
+                    <span id="reviewAlertBadge"
+                        style="display: none; background: #22c55e; color: #fff; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: auto;">NEW</span>
+                </div>
+                <div id="specialistAlertsList"
+                    style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <div
+                        style="text-align: center; color: #94a3b8; padding: 20px 10px; font-size: 11px; border: 1px dashed #e2e8f0; border-radius: 8px;">
+                        No pending specialist updates
+                    </div>
+                </div>
+
+                <div class="watch-indicator">
+                    <span style="font-size: 14px;">👁️</span>
+                    <div>
+                        <div style="font-weight: 800; font-size: 9px; text-transform: uppercase;">Escalation Watch</div>
+                        <div style="font-size: 10px; opacity: 0.8;">No high-risk vectors detected</div>
+                    </div>
+                </div>
+            </aside>
+        </div> <!-- End of dashboard-layout -->
+
+        <style>
+            /* Specialist Hub Styling */
+            #specialistHub {
+                display: none;
+                margin-top: 24px;
+                animation: fadeIn 0.4s ease;
+            }
+
+            .specialist-grid {
+                display: grid;
+                grid-template-columns: 350px 1fr;
+                gap: 24px;
+                align-items: start;
+            }
+
+            @media (max-width: 1024px) {
+                .specialist-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .case-queue-panel {
+                    margin-bottom: 24px;
+                }
+            }
+
+            .case-queue-panel {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 20px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            }
+
+            .case-jacket {
+                background: #fff;
+                padding: 40px;
+                border-radius: 0;
+                border: 1px solid #d1d5db;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                font-family: 'Inter', sans-serif;
+                position: relative;
+            }
+
+            .jacket-header {
+                border-bottom: 2px solid #000;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+            }
+
+            .jacket-title {
+                font-size: 24px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .vitals-jacket-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5px;
+                background: #e2e8f0;
+                border: 1px solid #e2e8f0;
+                margin: 20px 0;
+            }
+
+            .vital-cell {
+                background: #fff;
+                padding: 12px;
+                text-align: center;
+            }
+
+            .vital-cell.abnormal {
+                background: #fef2f2;
+                color: #dc2626;
+                font-weight: 700;
+            }
+
+            .vital-label {
+                font-size: 10px;
+                color: #64748b;
+                text-transform: uppercase;
+                margin-bottom: 4px;
+            }
+
+            .queue-item {
+                padding: 16px;
+                border-bottom: 1px solid #f1f5f9;
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 10px;
+                border-left: 0 solid #3b82f6;
+                margin-bottom: 4px;
+            }
+
+            .queue-item:hover {
+                background: #f8fafc;
+                transform: translateX(4px);
+                border-left-width: 4px;
+            }
+
+            .queue-item.active {
+                background: #eff6ff;
+                border-left: 4px solid #2563eb;
+                box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.08);
+            }
+
+            .decision-block {
+                margin-top: 40px;
+                padding-top: 30px;
+                border-top: 1px dashed #d1d5db;
+            }
+
+            .expert-input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 14px;
+                margin-bottom: 16px;
+            }
+        </style>
+
+        <div id="specialistHub">
+            <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 24px;">👨‍⚕️ Specialist
+                Revision Hub</h1>
+
+            <div class="specialist-grid">
+                <!-- Left: Case Queue -->
+                <div class="case-queue-panel">
+                    <div
+                        style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                        <span data-i18n="pending_consultations">Pending Consultations</span>
+                        <span id="queueCount"
+                            style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px;">0</span>
+                    </div>
+
+                    <!-- Enhanced Search Interface -->
+                    <div style="margin-bottom: 20px; position: relative;">
+                        <input type="text" id="caseSearchInput" placeholder="Search patient name or ID..."
+                            style="width: 100%; padding: 12px 12px 12px 38px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 13px; outline: none; transition: all 0.2s; background: #f8fafc; border-left: 4px solid #3b82f6;">
+                        <span
+                            style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.6;">🔍</span>
+                    </div>
+
+                    <div id="caseQueueList" style="max-height: 65vh; overflow-y: auto; padding-right: 4px;">
+                        <!-- Queue items injected here -->
+                        <div style="text-align: center; color: #94a3b8; padding: 40px 20px;">
+                            <span style="font-size: 24px;">📥</span>
+                            <p style="font-size: 13px; margin-top: 12px;">No escalated cases pending review.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Case Jacket -->
+                <div id="caseJacketContainer">
+                    <div
+                        style="background: white; border-radius: 16px; padding: 60px; text-align: center; border: 2px dashed #e2e8f0; color: #94a3b8;">
+                        <span style="font-size: 40px;">📂</span>
+                        <h3 style="margin-top: 16px; color: #475569;">Select a case from the queue to start review
+                        </h3>
+                        <p style="font-size: 14px;">Review all AI findings and vitals before providing your second
+                            opinion.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Escalation Reason Modal -->
+        <div id="escalateReasonModal" class="dispatch-overlay" style="display: none;">
+            <div class="dispatch-card" style="text-align: left; max-width: 500px;">
+                <h3
+                    style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                    <span
+                        style="background: #eff6ff; color: #2563eb; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px;">📝</span>
+                    Priority Handover Note
+                </h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 20px; line-height: 1.5;">Provide any critical
+                    observations or reasons for this escalation to help the specialist prioritize this case.</p>
+
+                <label
+                    style="display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px;">Clinical
+                    Handover Note</label>
+                <textarea id="escalationNote" class="expert-input"
+                    style="height: 120px; margin-bottom: 20px; border-color: #e2e8f0; font-family: inherit;"
+                    placeholder="e.g., Patient experiencing worsening dyspnea..."></textarea>
+
+                <div style="display: flex; gap: 12px;">
+                    <button class="action-btn secondary"
+                        onclick="document.getElementById('escalateReasonModal').style.display='none'"
+                        style="flex: 1;">Cancel</button>
+                    <button class="action-btn primary" id="confirmEscalateBtn" style="flex: 2;">🚀 Dispatch to
+                        Specialist</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="dispatchModal" class="dispatch-overlay">
+            <div class="dispatch-card">
+                <div class="dispatch-icon">🛰️</div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Case Escalated
+                </h2>
+                <p style="color: #64748b; font-size: 14px; line-height: 1.6;">Case data has been synchronized with
+                    the
+                    Secure Clinical Cloud. A specialist will review the findings shortly.</p>
+                <div class="consultation-id" id="consultationIdDisplay">ID: CS-77249-B</div>
+                <div style="margin-top: 10px;">
+                    <button class="action-btn primary" onclick="closeDispatchModal()" style="width: 100%;">Return to
+                        Monitor</button>
+                </div>
+            </div>
+        </div> <!-- End of dispatchModal -->
+    </div> <!-- End of app-container -->
+
+    <!-- Neural Scan Overlay -->
+    <div id="neuralScanOverlay" class="neural-scan-overlay">
+        <div class="scan-frame">
+            <img id="scanPreviewImg" class="scan-image-preview">
+            <div class="scan-line"></div>
+            <div id="scanMarkers" class="scan-markers"></div>
+        </div>
+        <div class="neural-text">
+            <span>Clinical Visual Analysis Active</span><br>
+            <span id="neuralScanMetric" style="font-size: 10px; opacity: 0.7;">Detecting spectral
+                irregularities...</span>
+        </div>
+    </div>
+
+    <script>
+        // ══════════════════════════════════════════════════════════
+        //  SYMPTOM REFERENCE TABLE — Fully Multilingual 3-Column Layout
+        // ══════════════════════════════════════════════════════════
+
+        // Maps symptom value → emoji + i18n key + region key + region i18n key
+        const SYMPTOM_REF_DATA = [
+            { emoji: '🌡️', value: 'fever', regionId: 'systemic', regionKey: 'reftable.region.systemic' },
+            { emoji: '😷', value: 'cough', regionId: 'chest', regionKey: 'reftable.region.chest' },
+            { emoji: '😮‍💨', value: 'breathlessness', regionId: 'chest', regionKey: 'reftable.region.chest' },
+            { emoji: '💔', value: 'chest_pain', regionId: 'chest', regionKey: 'reftable.region.chest' },
+            { emoji: '🤕', value: 'headache', regionId: 'head', regionKey: 'reftable.region.head' },
+            { emoji: '🔴', value: 'rash', regionId: 'systemic', regionKey: 'reftable.region.systemic' },
+            { emoji: '💩', value: 'diarrhea', regionId: 'abdomen', regionKey: 'reftable.region.abdomen' },
+            { emoji: '🤮', value: 'vomiting', regionId: 'abdomen', regionKey: 'reftable.region.abdomen' },
+            { emoji: '🤢', value: 'abdominal_pain', regionId: 'abdomen', regionKey: 'reftable.region.abdomen' },
+            { emoji: '😴', value: 'fatigue', regionId: 'systemic', regionKey: 'reftable.region.systemic' },
+            { emoji: '💪', value: 'body_ache', regionId: 'systemic', regionKey: 'reftable.region.systemic' },
+            { emoji: '🗣️', value: 'sore_throat', regionId: 'neck', regionKey: 'reftable.region.neck' },
+            { emoji: '🦴', value: 'joint_pain', regionId: 'leftArm', regionKey: 'reftable.region.limbs' },
+            { emoji: '😵', value: 'nausea', regionId: 'abdomen', regionKey: 'reftable.region.abdomen' },
+            { emoji: '💫', value: 'dizziness', regionId: 'head', regionKey: 'reftable.region.head' },
+            { emoji: '😵‍💫', value: 'confusion', regionId: 'head', regionKey: 'reftable.region.head' },
+            { emoji: '🎈', value: 'swelling', regionId: 'rightLeg', regionKey: 'reftable.region.leg' },
+            { emoji: '❤️', value: 'palpitations', regionId: 'chest', regionKey: 'reftable.region.chest' },
+            { emoji: '📈', value: 'high_bp', regionId: 'chest', regionKey: 'reftable.region.chest' },
+        ];
+
+        let refTableOpen = true;
+
+        // Safe translate: uses app-new.js translate() when loaded, else returns fallback
+        function refTranslate(key, fallback) {
+            if (typeof translate === 'function') {
+                const result = translate(key, {}, fallback || key);
+                return result !== key ? result : (fallback || key);
+            }
+            return fallback || key;
+        }
+
+        function toggleRefTable() {
+            const table = document.getElementById('symptomRefTable');
+            const chevron = document.getElementById('refTableChevron');
+            refTableOpen = !refTableOpen;
+            if (refTableOpen) {
+                table.style.display = 'block';
+                chevron.style.transform = 'rotate(0deg)';
+                chevron.textContent = '▲';
+            } else {
+                table.style.display = 'none';
+                chevron.style.transform = 'rotate(180deg)';
+                chevron.textContent = '▼';
+            }
+        }
+
+        function initSymptomRefTable() {
+            const container = document.getElementById('symptomRefRows');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Also update the column headers in-place
+            const labelEl = document.getElementById('refTableLabel');
+            if (labelEl) labelEl.textContent = refTranslate('reftable.title', 'Symptom → Condition Table');
+
+            SYMPTOM_REF_DATA.forEach((row, idx) => {
+                // Get translated text for all 3 columns
+                const symptomText = refTranslate(`symptom.${row.value}`, row.value);
+                const regionText = refTranslate(row.regionKey, row.regionId);
+                const riskText = refTranslate(`reftable.risk.${row.value}`, '—');
+                const isCritical = riskText.includes('⚡');
+
+                const div = document.createElement('div');
+                div.id = `sref-row-${row.value}`;
+                div.style.cssText = `
+                    display: grid; grid-template-columns: 38% 28% 34%;
+                    padding: 7px 10px; gap: 4px;
+                    background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};
+                    border-bottom: 1px solid #f1f5f9;
+                    cursor: pointer;
+                    transition: all 0.18s ease;
+                    align-items: center;
+                `;
+                div.innerHTML = `
+                    <span style="font-size: 11px; font-weight: 700; color: #1e293b; display:flex; align-items:center; gap:4px;">${row.emoji} ${symptomText}</span>
+                    <span style="font-size: 10px; font-weight: 600; color: #4f46e5; background:#eff6ff; padding:2px 6px; border-radius:6px; text-align:center; line-height:1.4;">${regionText}</span>
+                    <span style="font-size: 9.5px; font-weight: ${isCritical ? '800' : '600'}; color: ${isCritical ? '#dc2626' : '#78716c'}; line-height: 1.35;">${riskText}</span>
+                `;
+
+                // Hover effect
+                div.addEventListener('mouseenter', () => {
+                    div.style.background = '#eff6ff';
+                    div.style.borderLeft = '3px solid #6366f1';
+                    div.style.paddingLeft = '7px';
+                });
+                div.addEventListener('mouseleave', () => {
+                    div.style.background = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                    div.style.borderLeft = '';
+                    div.style.paddingLeft = '10px';
+                });
+
+                // Click: check symptom + highlight body region
+                div.addEventListener('click', () => {
+                    // 1. Check the symptom checkbox
+                    const cb = document.querySelector(`input[name="symptom"][value="${row.value}"]`);
+                    if (cb) {
+                        cb.checked = true;
+                        cb.dispatchEvent(new Event('change', { bubbles: true }));
+                        const label = cb.closest('label');
+                        if (label) {
+                            label.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            label.style.background = '#e0e7ff';
+                            label.style.borderColor = '#6366f1';
+                            setTimeout(() => {
+                                label.style.background = '';
+                                label.style.borderColor = '';
+                            }, 1400);
+                        }
+                    }
+                    // 2. Flash body region on SVG
+                    const svgRegion = document.getElementById(row.regionId);
+                    if (svgRegion) {
+                        svgRegion.style.fill = '#818cf8';
+                        svgRegion.style.filter = 'drop-shadow(0 0 10px rgba(99,102,241,0.7))';
+                        setTimeout(() => {
+                            svgRegion.style.fill = '';
+                            svgRegion.style.filter = '';
+                        }, 1600);
+                    }
+                    // 3. Flash row
+                    div.style.background = '#e0e7ff';
+                    setTimeout(() => {
+                        div.style.background = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                    }, 800);
+                    // 4. Update guidance bridge
+                    if (typeof updateGuidanceBridge === 'function') {
+                        updateGuidanceBridge(row.regionId);
+                    }
+                    // 5. Log to monitor
+                    if (typeof logToMonitor === 'function') {
+                        logToMonitor(`Quick-Ref: ${symptomText} → ${regionText}`, 'info');
+                    }
+                });
+
+                container.appendChild(div);
+            });
+
+            // Update sticky column header spans
+            const colSymptom = document.querySelector('#symptomRefTable .ref-col-symptom');
+            const colBodypart = document.querySelector('#symptomRefTable .ref-col-bodypart');
+            const colCancause = document.querySelector('#symptomRefTable .ref-col-cancause');
+            if (colSymptom) colSymptom.textContent = `🩺 ${refTranslate('reftable.col.symptom', 'Symptom')}`;
+            if (colBodypart) colBodypart.textContent = `📍 ${refTranslate('reftable.col.bodypart', 'Body Part')}`;
+            if (colCancause) colCancause.textContent = `⚠️ ${refTranslate('reftable.col.cancause', 'Can Cause')}`;
+        }
+
+        // Highlight matching table rows when SVG body region is clicked
+        function highlightRefTableRowsForRegion(regionId) {
+            document.querySelectorAll('[id^="sref-row-"]').forEach(row => {
+                row.style.outline = '';
+            });
+            SYMPTOM_REF_DATA.forEach(item => {
+                if (item.regionId === regionId) {
+                    const rowEl = document.getElementById(`sref-row-${item.value}`);
+                    if (rowEl) {
+                        rowEl.style.outline = '2px solid #6366f1';
+                        rowEl.style.outlineOffset = '-2px';
+                        rowEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            });
+        }
+
+        // Re-render the table every time the language changes
+        document.addEventListener('langChanged', () => {
+            // Small delay to let i18n object update first
+            setTimeout(initSymptomRefTable, 50);
+        });
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initSymptomRefTable();
+            // Also re-render after language is loaded (may take a moment on first load)
+            setTimeout(initSymptomRefTable, 600);
+        });
+
+    </script>
+
+    <script>
+        // Clinical Monitor Observer Logic
+        const eventLog = document.getElementById('clinicalEventLog');
+        const symptomCounter = document.getElementById('activeSymptomsCount');
+        const analyzingLabel = document.getElementById('analyzingLabel');
+        const scannerLine = document.getElementById('scannerLine');
+
+        async function logToMonitor(message, level = 'info') {
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+            const entry = document.createElement('div');
+            entry.className = `log-entry level-${level}`;
+
+            let color = '#cbd5e1';
+            let prefix = '[INFO]';
+            if (level === 'warning') { color = '#fbbf24'; prefix = '[WARN]'; }
+            if (level === 'alert') { color = '#ef4444'; prefix = '[ALERT]'; }
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.innerText = timeStr;
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'log-text typing-cursor';
+            textSpan.style.color = color;
+
+            entry.appendChild(timeSpan);
+            entry.appendChild(textSpan);
+            eventLog.appendChild(entry);
+
+            // Typing Animation
+            const fullMessage = `${prefix} ${message}`;
+            for (let i = 0; i < fullMessage.length; i++) {
+                textSpan.innerText += fullMessage[i];
+                eventLog.scrollTop = eventLog.scrollHeight; // Smooth auto-scroll
+                await new Promise(r => setTimeout(r, 20)); // Typing speed
+            }
+            textSpan.classList.remove('typing-cursor');
+
+            // Limit log entries
+            if (eventLog.children.length > 30) {
+                eventLog.removeChild(eventLog.firstChild);
+            }
+        }
+
+        function triggerAnalysisMode() {
+            analyzingLabel.style.display = 'block';
+            scannerLine.style.display = 'block';
+            setTimeout(() => {
+                analyzingLabel.style.display = 'none';
+                scannerLine.style.display = 'none';
+            }, 1200);
+        }
+
+        // Initial Logs
+        logToMonitor("CORE Engine initialized...", "info");
+        setTimeout(() => logToMonitor("Anatomical vectors synchronized.", "info"), 800);
+
+        // Observe Form Changes
+        const caseForm = document.getElementById('caseForm');
+        caseForm.addEventListener('change', (e) => {
+            const target = e.target;
+            triggerAnalysisMode();
+
+            // Update Symptom Counter
+            const checkedSymptoms = document.querySelectorAll('input[name="symptom"]:checked');
+            symptomCounter.innerText = checkedSymptoms.length;
+
+            if (target.name === 'symptom' && target.checked) {
+                const symptomName = target.closest('label').querySelector('.symptom-label').innerText.replace(/[^\w\s]/g, '').trim();
+                logToMonitor(`Symptom Registered: ${symptomName}`, 'info');
+
+                // Hypertensive Warning Pattern
+                const isHeadache = document.querySelector('input[value="headache"]').checked;
+                const isHighBP = document.querySelector('input[value="high_bp"]').checked;
+                if (isHeadache && isHighBP) {
+                    logToMonitor("Interaction Pattern Detected: Hypertensive Warning", "alert");
+                }
+            }
+
+            if (target.value === 'pregnancy' && target.checked) {
+                logToMonitor("Maternal Risk Protocol Monitoring Active", "warning");
+            }
+
+            if (target.id === 'severity' && target.value === 'High') {
+                logToMonitor("Severity Multiplier Layer Engaged", "alert");
+            }
+        });
+
+        // Body Region Mapping Logic
+        const bodyRegionMap = {
+            head: ["headache", "dizziness", "confusion", "fever"],
+            neck: ["sore_throat", "cough"],
+            chest: ["chest_pain", "breathlessness", "cough", "palpitations"],
+            abdomen: ["abdominal_pain", "vomiting", "diarrhea", "nausea"],
+            leftArm: ["joint_pain", "body_ache", "rash"],
+            rightArm: ["joint_pain", "body_ache", "rash"],
+            leftLeg: ["joint_pain", "swelling", "body_ache", "rash"],
+            rightLeg: ["joint_pain", "swelling", "body_ache", "rash"],
+            systemic: ["fever", "fatigue", "rash", "body_ache"]
+        };
+
+        const anatomyPopup = document.getElementById('anatomyPopup');
+        const popupOptions = document.getElementById('popupOptions');
+        const regionTitle = document.getElementById('regionTitle');
+        const confirmBtn = document.getElementById('confirmAnatomyBtn');
+        const bodyPanel = document.querySelector('.human-body-panel');
+        let currentRegion = null;
+
+        document.querySelectorAll('.body-region').forEach(region => {
+            region.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const regionId = region.id;
+                const symptoms = bodyRegionMap[regionId];
+                if (!symptoms) return;
+
+                currentRegion = regionId;
+
+                // Show popup centered in panel
+                document.querySelector('.body-map-container').classList.add('selection-active');
+                anatomyPopup.style.display = 'block';
+
+                // Update title
+                regionTitle.innerText = regionId === 'systemic' ? 'Systemic / General' : regionId.charAt(0).toUpperCase() + regionId.slice(1);
+
+                // Populate options
+                popupOptions.innerHTML = symptoms.map(s => `
+                    <label class="popup-option">
+                        <input type="checkbox" value="${s}" ${isSymptomChecked(s) ? 'checked' : ''}>
+                        <span>${formatSymptomName(s)}</span>
+                    </label>
+                `).join('');
+            });
+        });
+
+        function isSymptomChecked(value) {
+            const checkbox = document.querySelector(`input[name="symptom"][value="${value}"]`);
+            return checkbox ? checkbox.checked : false;
+        }
+
+        function formatSymptomName(id) {
+            return id.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+
+        function closeAnatomyPopup() {
+            anatomyPopup.style.display = 'none';
+            document.querySelector('.body-map-container').classList.remove('selection-active');
+        }
+
+        confirmBtn.addEventListener('click', () => {
+            const selected = Array.from(popupOptions.querySelectorAll('input:checked')).map(i => i.value);
+            const allOptions = Array.from(popupOptions.querySelectorAll('input')).map(i => i.value);
+
+            // Sync with actual form checkboxes
+            allOptions.forEach(s => {
+                const formCheckbox = document.querySelector(`input[name="symptom"][value="${s}"]`);
+                if (formCheckbox) {
+                    formCheckbox.checked = selected.includes(s);
+                    // Trigger change event if needed by other listeners
+                    formCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+
+            closeAnatomyPopup();
+        });
+
+        // Close on click outside
+        window.addEventListener('click', (e) => {
+            if (!anatomyPopup.contains(e.target) && !e.target.classList.contains('body-region')) {
+                closeAnatomyPopup();
+            }
+        });
+
+        // Offline and Sync Logic Interface
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('[SW] Clinical Cloud Offline Sync Registered');
+                }).catch(err => {
+                    console.error('[SW] Registration failed:', err);
+                });
+            });
+        }
+
+        // Connection Status Listeners
+        function updateConnectionStatus() {
+            const status = navigator.onLine;
+            const badge = document.getElementById('connectionStatus');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            if (status) {
+                badge.style.background = '#f0fdf4';
+                badge.style.color = '#166534';
+                badge.style.borderColor = '#bbf7d0';
+                dot.style.background = '#22c55e';
+                text.innerText = "CLOUD CONNECTED";
+                if (window.logToMonitor) logToMonitor("Cloud Connection Restored. Starting Sync...", "success");
+            } else {
+                badge.style.background = '#fff7ed';
+                badge.style.color = '#9a3412';
+                badge.style.borderColor = '#ffedd5';
+                dot.style.background = '#f97316';
+                text.innerText = "LOCAL OFFLINE MODE";
+                if (window.logToMonitor) logToMonitor("Cloud Connection Lost. Working in Local Offline Mode.", "warning");
+            }
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        updateConnectionStatus(); // Initial check
+    </script>
+    <script src="app-new.js"></script>
+    <script src="voice-handler.js"></script>
+
+    <!-- ╔══ CLINICAL GUIDANCE BRIDGE ══╗ -->
+    <style>
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        #clinicalGuidanceBridge:hover {
+            border-color: rgba(99, 102, 241, 0.6) !important;
+            box-shadow: 0 6px 30px rgba(99, 102, 241, 0.22) !important;
+        }
+
+        .guide-fade-in {
+            animation: guideFadeIn 0.4s ease forwards;
+        }
+
+        @keyframes guideFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <script>
+        // ═════════════════════════════════════════════════════
+        //  CLINICAL GUIDANCE BRIDGE — Multilingual Body Map Helper
+        // ═════════════════════════════════════════════════════
+
+        const GUIDANCE_DATA = {
+            en: {
+                idle: {
+                    region: 'No region selected',
+                    text: 'Touch a body region on the map above to get real-time clinical guidance.',
+                    tip: null, icon: '🩺'
+                },
+                head: {
+                    region: '🧠 Cranial / Head Region',
+                    text: 'Check for: Headache, dizziness, blurred vision, confusion, or neck stiffness. Ask the patient if pain is sudden-onset or worsening.',
+                    tip: '🚨 Red Flag: Sudden severe headache + neck stiffness may indicate Meningitis. Escalate immediately.',
+                    icon: '🧠'
+                },
+                neck: {
+                    region: '🔗 Cervical / Neck Region',
+                    text: 'Check for: Swollen lymph nodes, sore throat, stiffness, or difficulty swallowing. Assess if pain radiates to the jaw or shoulder.',
+                    tip: '⚠️ Alert: Neck stiffness with fever and headache is the Meningitic Triad — critical sign.',
+                    icon: '🔗'
+                },
+                chest: {
+                    region: '❤️ Thoracic / Chest Region',
+                    text: 'Check for: Chest pain, palpitations, breathlessness, or cough. Note: Is pain crushing/squeezing? Does it radiate to the left arm?',
+                    tip: '🚨 Red Flag: Crushing chest pain + breathlessness = possible cardiac event. Call emergency now.',
+                    icon: '❤️'
+                },
+                abdomen: {
+                    region: '🫃 Abdominal Region',
+                    text: 'Check for: Abdominal pain, nausea, vomiting, diarrhea, or bloating. Ask about pain location — upper right may indicate liver/gallbladder.',
+                    tip: '⚠️ Alert: Severe right-lower pain in a young woman may indicate appendicitis or ectopic pregnancy.',
+                    icon: '🫃'
+                },
+                rightArm: {
+                    region: '💪 Right Upper Limb',
+                    text: 'Check for: Joint pain, swelling, weakness, or numbness. Assess grip strength and range of motion. Check for IV site complications.',
+                    tip: null, icon: '💪'
+                },
+                leftArm: {
+                    region: '💪 Left Upper Limb',
+                    text: 'Check for: Joint pain, swelling, or numbness. Pain radiating from chest to left arm is a cardiac red flag — verify immediately.',
+                    tip: '🚨 Red Flag: Left arm pain with chest tightness = possible Acute Coronary Syndrome.',
+                    icon: '🫀'
+                },
+                rightLeg: {
+                    region: '🦵 Right Lower Limb',
+                    text: 'Check for: Swelling, redness, warmth, or pain in the calf. Unilateral calf swelling is a classic DVT sign.',
+                    tip: '⚠️ Alert: Unilateral calf swelling + redness = possible Deep Vein Thrombosis. Refer urgently.',
+                    icon: '🦵'
+                },
+                leftLeg: {
+                    region: '🦵 Left Lower Limb',
+                    text: 'Check for: Swelling, redness, warmth, or pain in the calf or thigh. Check for ulcers in diabetic patients.',
+                    tip: '⚠️ Alert: In diabetic patients, leg ulcers or numbness need urgent wound assessment.',
+                    icon: '🦵'
+                },
+                systemic: {
+                    region: '🌐 Systemic / General Symptoms',
+                    text: 'Check for: Generalized fatigue, fever, body ache, weight loss, or rash. Consider systemic infection, autoimmune, or metabolic cause.',
+                    tip: '⚠️ Alert: Fever + rash + joint pain may indicate Dengue, Chikungunya, or Measles.',
+                    icon: '🌐'
+                }
+            },
+
+            hi: {
+                idle: {
+                    region: 'कोई अंग नहीं चुना',
+                    text: 'रीयल-टाइम क्लिनिकल मार्गदर्शन के लिए ऊपर दिए शरीर के नक्शे पर कोई अंग छुएं।',
+                    tip: null, icon: '🩺'
+                },
+                head: {
+                    region: '🧠 मस्तिष्क / सिर क्षेत्र',
+                    text: 'जांचें: सिरदर्द, चक्कर, धुंधली दृष्टि, भ्रम या गर्दन में अकड़न। पूछें कि दर्द अचानक शुरू हुआ या धीरे-धीरे बढ़ा।',
+                    tip: '🚨 चेतावनी: अचानक तेज सिरदर्द + गर्दन की अकड़न = मेनिनजाइटिस का संकेत। तुरंत आगे भेजें।',
+                    icon: '🧠'
+                },
+                neck: {
+                    region: '🔗 ग्रीवा / गर्दन क्षेत्र',
+                    text: 'जांचें: सूजी हुई ग्रंथियां, गले में खराश, या जबड़े/कंधे तक दर्द का फैलाव।',
+                    tip: '⚠️ चेतावनी: बुखार के साथ गर्दन की अकड़न = मेनिनजाइटिस ट्रायड — अत्यंत गंभीर संकेत।',
+                    icon: '🔗'
+                },
+                chest: {
+                    region: '❤️ वक्ष / छाती क्षेत्र',
+                    text: 'जांचें: सीने में दर्द, धड़कन, सांस लेने में कठिनाई या खांसी। क्या दर्द बाएं हाथ तक फैल रहा है?',
+                    tip: '🚨 चेतावनी: भारी सीने का दर्द + सांस की तकलीफ = हृदय आपातकाल हो सकता है।',
+                    icon: '❤️'
+                },
+                abdomen: {
+                    region: '🫃 पेट क्षेत्र',
+                    text: 'जांचें: पेट दर्द, मतली, उल्टी, दस्त। ऊपरी दाएं हिस्से का दर्द — लिवर/पित्ताशय की समस्या हो सकती है।',
+                    tip: '⚠️ चेतावनी: युवा महिला में निचले दाएं दर्द — एपेंडिसाइटिस या एक्टोपिक प्रेग्नेंसी की जांच करें।',
+                    icon: '🫃'
+                },
+                rightArm: {
+                    region: '💪 दाहिना ऊपरी अंग',
+                    text: 'जांचें: जोड़ों का दर्द, सूजन, कमजोरी, या सुन्नपन। पकड़ने की ताकत और गति की जांच करें।',
+                    tip: null, icon: '💪'
+                },
+                leftArm: {
+                    region: '💪 बायां ऊपरी अंग',
+                    text: 'जांचें: दर्द, सूजन, या सुन्नपन। सीने से बाएं हाथ तक दर्द = हृदय का लाल संकेत।',
+                    tip: '🚨 चेतावनी: बाएं हाथ में दर्द + सीने में जकड़न = एक्यूट कोरोनरी सिंड्रोम।',
+                    icon: '🫀'
+                },
+                rightLeg: {
+                    region: '🦵 दाहिना निचला अंग',
+                    text: 'जांचें: पिंडली में सूजन, लालिमा, गर्माहट। एक तरफ की पिंडली की सूजन = DVT का संकेत।',
+                    tip: '⚠️ चेतावनी: एकतरफा सूजन + लालिमा = डीप वेन थ्रोम्बोसिस — तत्काल रेफर करें।',
+                    icon: '🦵'
+                },
+                leftLeg: {
+                    region: '🦵 बायां निचला अंग',
+                    text: 'जांचें: सूजन, दर्द या घाव। मधुमेह रोगियों में पैर के घाव की तुरंत जांच करें।',
+                    tip: '⚠️ चेतावनी: मधुमेह + पैर में घाव या सुन्नपन = तत्काल आकलन जरूरी।',
+                    icon: '🦵'
+                },
+                systemic: {
+                    region: '🌐 सामान्य / पूरे शरीर के लक्षण',
+                    text: 'जांचें: थकान, बुखार, अंगदुखी, वजन घटना या रैश। प्रणालीगत संक्रमण या मेटाबोलिक कारण पर विचार करें।',
+                    tip: '⚠️ चेतावनी: बुखार + रैश + जोड़ों का दर्द = डेंगू, चिकनगुनिया या खसरे की जांच करें।',
+                    icon: '🌐'
+                }
+            },
+
+            mr: {
+                idle: {
+                    region: 'कोणताही भाग निवडलेला नाही',
+                    text: 'वरील शरीराच्या नकाशावर कोणताही भाग स्पर्श करा आणि त्वरित क्लिनिकल मार्गदर्शन मिळवा.',
+                    tip: null, icon: '🩺'
+                },
+                head: {
+                    region: '🧠 मस्तिष्क / डोके क्षेत्र',
+                    text: 'तपासा: डोकेदुखी, चक्कर, अंधुक दृष्टी, गोंधळ किंवा मानेत ताठरपणा। वेदना अचानक सुरू झाली का?',
+                    tip: '🚨 धोकादायक: अचानक तीव्र डोकेदुखी + मानेत ताठरपणा = मेनिंजायटिसचा संकेत. तातडीने पाठवा.',
+                    icon: '🧠'
+                },
+                neck: {
+                    region: '🔗 मान / ग्रीवा क्षेत्र',
+                    text: 'तपासा: सुजलेल्या ग्रंथी, घसा दुखणे, ताठरपणा किंवा जबडा/खांद्यापर्यंत वेदना।',
+                    tip: '⚠️ सूचना: ताप + मानेत ताठरपणा = मेनिंजायटिस ट्रायड — अत्यंत गंभीर.',
+                    icon: '🔗'
+                },
+                chest: {
+                    region: '❤️ छाती / वक्ष क्षेत्र',
+                    text: 'तपासा: छातीत दुखणे, धडधड, श्वास लेण्यात अडचण किंवा खोकला. वेदना डाव्या हाताकडे पसरत आहे का?',
+                    tip: '🚨 धोकादायक: जड छातीत दुखणे + श्वास कमी होणे = हृदयाची आपत्कालीन स्थिती.',
+                    icon: '❤️'
+                },
+                abdomen: {
+                    region: '🫃 पोट क्षेत्र',
+                    text: 'तपासा: पोटदुखी, मळमळ, उलटी, जुलाब. वरच्या उजव्या भागात दुखणे = यकृत/पित्ताशयाची समस्या असू शकते.',
+                    tip: '⚠️ सूचना: तरुण स्त्रीमध्ये खालच्या उजव्या भागात वेदना — अपेंडिसायटिस किंवा एक्टोपिक गर्भधारणेची तपासणी करा.',
+                    icon: '🫃'
+                },
+                rightArm: {
+                    region: '💪 उजवा वरचा अवयव',
+                    text: 'तपासा: सांधेदुखी, सूज, अशक्तपणा किंवा बधिरता. पकडण्याची शक्ती आणि हालचालींची तपासणी करा.',
+                    tip: null, icon: '💪'
+                },
+                leftArm: {
+                    region: '💪 डावा वरचा अवयव',
+                    text: 'तपासा: दुखणे, सूज किंवा बधिरता. छातीतून डाव्या हातापर्यंत वेदना = हृदयाचा लाल संकेत.',
+                    tip: '🚨 धोकादायक: डाव्या हातात दुखणे + छातीत जडपणा = एक्यूट कोरोनरी सिंड्रोम.',
+                    icon: '🫀'
+                },
+                rightLeg: {
+                    region: '🦵 उजवा खालचा अवयव',
+                    text: 'तपासा: वासरूमध्ये सूज, लालसरपणा, उबदारपणा. एकतर्फी वासरूची सूज = DVT चा संकेत.',
+                    tip: '⚠️ सूचना: एकतर्फी सूज + लालसरपणा = डीप वेन थ्रोम्बोसिस — तातडीने संदर्भ द्या.',
+                    icon: '🦵'
+                },
+                leftLeg: {
+                    region: '🦵 डावा खालचा अवयव',
+                    text: 'तपासा: सूज, वेदना किंवा जखम. मधुमेही रुग्णांमध्ये पायाच्या जखमांची त्वरित तपासणी करा.',
+                    tip: '⚠️ सूचना: मधुमेह + पायात जखम = तातडीने मूल्यांकन आवश्यक.',
+                    icon: '🦵'
+                },
+                systemic: {
+                    region: '🌐 सामान्य / संपूर्ण शरीराची लक्षणे',
+                    text: 'तपासा: थकवा, ताप, अंगदुखी, वजन कमी होणे किंवा पुरळ. पद्धतशीर संसर्ग किंवा चयापचय कारण विचारात घ्या.',
+                    tip: '⚠️ सूचना: ताप + पुरळ + सांधेदुखी = डेंग्यू, चिकुनगुनिया किंवा गोवर तपासा.',
+                    icon: '🌐'
+                }
+            }
+        };
+
+        function updateGuidanceBridge(regionId) {
+            const lang = (typeof currentLang !== 'undefined' ? currentLang : 'en') || 'en';
+            const langData = GUIDANCE_DATA[lang] || GUIDANCE_DATA['en'];
+            const data = langData[regionId] || langData['idle'];
+
+            const iconEl = document.getElementById('guidanceIcon');
+            const regionEl = document.getElementById('guidanceRegionLabel');
+            const textEl = document.getElementById('guidanceText');
+            const tipEl = document.getElementById('guidanceTip');
+            const bridge = document.getElementById('clinicalGuidanceBridge');
+
+            if (!regionEl || !textEl || !tipEl) return;
+
+            // Animate out → update → animate in
+            textEl.style.opacity = '0';
+            regionEl.style.opacity = '0';
+
+            setTimeout(() => {
+                if (iconEl) iconEl.textContent = data.icon || '🩺';
+                regionEl.textContent = data.region;
+                textEl.textContent = data.text;
+
+                if (data.tip) {
+                    tipEl.textContent = data.tip;
+                    tipEl.style.display = 'block';
+                    bridge.style.borderColor = 'rgba(239,68,68,0.4)';
+                } else {
+                    tipEl.style.display = 'none';
+                    bridge.style.borderColor = 'rgba(99,102,241,0.3)';
+                }
+
+                textEl.style.opacity = '1';
+                regionEl.style.opacity = '1';
+                textEl.classList.remove('guide-fade-in');
+                void textEl.offsetWidth; // reflow
+                textEl.classList.add('guide-fade-in');
+
+                if (window.logToMonitor && regionId && regionId !== 'idle') {
+                    logToMonitor(`Body map: ${data.region} selected.`, 'info');
+                }
+            }, 180);
+        }
+
+        // Hook into body map clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.body-region').forEach(region => {
+                region.addEventListener('click', () => {
+                    updateGuidanceBridge(region.id);
+                    if (typeof highlightRefTableRowsForRegion === 'function') {
+                        highlightRefTableRowsForRegion(region.id);
+                    }
+                });
+                region.addEventListener('mouseenter', () => {
+                    updateGuidanceBridge(region.id);
+                });
+            });
+
+            // Show idle when mouse leaves the SVG
+            const svg = document.getElementById('humanBodySvg');
+            if (svg) {
+                svg.addEventListener('mouseleave', () => {
+                    updateGuidanceBridge('idle');
+                });
+            }
+        });
+
+        // Re-translate guidance on language change
+        document.addEventListener('langChanged', () => updateGuidanceBridge('idle'));
+    </script>
+
+</body>
+
+</html>

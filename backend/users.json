@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "id": "usr_001",
+      "username": "pcw1",
+      "name": "Health Worker 1",
+      "role": "PCW",
+      "facility": "PHC Andheri",
+      "specialty": "",
+      "passwordHash": "$2a$10$djQugT7kNSVIKViTuIM8T.YOzDr81tKIMJRB1aCWgzR4WDjhBkVM2"
+    },
+    {
+      "id": "usr_002",
+      "username": "pcw2",
+      "name": "Health Worker 2",
+      "role": "PCW",
+      "facility": "PHC Bandra",
+      "passwordHash": "$2a$10$xQO52wnSV3Z7KC21se9J2OQZajjl20qsm44ew4/GLuOkfOQpr4QY6"
+    },
+    {
+      "id": "usr_003",
+      "username": "doctor1",
+      "name": "Dr. Sharma",
+      "role": "DOCTOR",
+      "specialty": "General Medicine",
+      "facility": "District Hospital",
+      "passwordHash": "$2a$10$YoqHKiuxZG7fiy24KaoEdOxt0M.qlKVnFYp6qReNo3iQRTtVCEAW2"
+    },
+    {
+      "id": "usr_004",
+      "username": "doctor2",
+      "name": "Dr. Patel",
+      "role": "DOCTOR",
+      "specialty": "Pediatrics",
+      "facility": "District Hospital",
+      "passwordHash": "$2a$10$ZMDoXPhxl5/SYb.OV3rSUO.eASkZtTh11jirz5qB.e2eLuLG3TWPy"
+    },
+    {
+      "id": "usr_005",
+      "username": "specialist1",
+      "name": "Dr. Mehta",
+      "role": "SPECIALIST",
+      "specialty": "Cardiology",
+      "facility": "Medical College Hospital",
+      "passwordHash": "$2a$10$xDsTGczOYJRrpWryRBwkY.HO/ZOtNbAo3saFJQH4Y47eLzUYtPznm"
+    },
+    {
+      "id": "usr_006",
+      "username": "admin",
+      "name": "System Admin",
+      "role": "ADMIN",
+      "facility": "Central Office",
+      "passwordHash": "$2a$10$Igmb3sW4AJEben/ELj6TxeQy4/WT7Z/nCD2NQtEJgw98XCgSVh9PO"
+    },
+    {
+      "id": "usr_007",
+      "username": "auditor",
+      "name": "Quality Auditor",
+      "role": "AUDITOR",
+      "facility": "Central Office",
+      "passwordHash": "$2a$10$k./3T1GLSApHe2r0cxXFyeGW36o3STGHRUds.4HIYgFT2L5ivQE7y"
+    }
+  ]
+}

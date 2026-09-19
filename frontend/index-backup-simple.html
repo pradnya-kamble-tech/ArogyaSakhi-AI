@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Healthcare DSS - Simple Case Entry</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.95;
+    }
+
+    /* Progress Steps */
+    .progress-bar {
+      display: flex;
+      justify-content: space-around;
+      padding: 30px;
+      background: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      padding: 0 10px;
+    }
+
+    .step-number {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0 auto 10px;
+      transition: all 0.3s;
+    }
+
+    .step.active .step-number {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      transform: scale(1.2);
+    }
+
+    .step.completed .step-number {
+      background: #10b981;
+    }
+
+    .step-label {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .step.active .step-label {
+      color: #667eea;
+      font-weight: 700;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 40px;
+    }
+
+    /* Language Selector */
+    .lang-box {
+      background: #fef3c7;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .lang-box select {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+    }
+
+    /* Form Section */
+    .form-section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Symptoms */
+    .symptoms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .symptom-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .symptom-box:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .symptom-box input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .symptom-box input:checked+label {
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    /* Submit Button */
+    .submit-button {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Loading */
+    .loading-screen {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .spinner {
+      width: 80px;
+      height: 80px;
+      border: 8px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 30px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      font-size: 24px;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    /* Results */
+    .results-screen {
+      animation: slideIn 0.5s;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-card {
+      background: #f8fafc;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border-left: 6px solid #cbd5e1;
+    }
+
+    .result-card.red {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .result-card.amber {
+      border-color: #f59e0b;
+      background: #fef3c7;
+    }
+
+    .result-card.green {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    .diagnosis-box {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .diagnosis-box .risk-badge {
+      display: inline-block;
+      padding: 10px 25px;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .diagnosis-box .risk-badge.red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .diagnosis-box .risk-badge.amber {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .diagnosis-box .risk-badge.green {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .diagnosis-box h2 {
+      font-size: 28px;
+      color: #1e293b;
+      margin-bottom: 15px;
+    }
+
+    .diagnosis-box .metrics {
+      color: #64748b;
+      font-size: 16px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .action-btn.secondary {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🏥 Healthcare Decision Support System</h1>
+      <p>AI-Powered Patient Analysis - Simple & Fast</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="step active" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-label">Enter Details</div>
+      </div>
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-label">AI Analysis</div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-label">View Results</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- STEP 1: Input Form -->
+      <div id="inputSection">
+        <!-- Language -->
+        <div class="lang-box">
+          <label style="font-weight: 700; margin-right: 10px;">🌐 Select Language:</label>
+          <select id="langSelect">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="mr">मराठी (Marathi)</option>
+          </select>
+        </div>
+
+        <form id="caseForm">
+          <!-- Patient Info -->
+          <div class="form-section">
+            <div class="section-title">👤 Patient Information</div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Age (years)</label>
+                <input type="number" id="age" value="30" min="0" max="120" required>
+              </div>
+              <div class="input-group">
+                <label>Gender</label>
+                <select id="gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Severity Level</label>
+                <select id="severity">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Symptoms -->
+          <div class="form-section">
+            <div class="section-title">🩺 Select Symptoms</div>
+            <div class="symptoms-grid">
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="fever">
+                <label>🌡️ Fever</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="cough">
+                <label>😷 Cough</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="chest_pain">
+                <label>💔 Chest Pain</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="headache">
+                <label>🤕 Headache</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="breathlessness">
+                <label>😮‍💨 Breathlessness</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="diarrhea">
+                <label>💩 Diarrhea</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="vomiting">
+                <label>🤮 Vomiting</label>
+              </label>
+              <label class="symptom-box">
+                <input type="checkbox" name="symptom" value="fatigue">
+                <label>😴 Fatigue</label>
+              </label>
+            </div>
+          </div>
+
+          <!-- Vitals (Optional) -->
+          <div class="form-section">
+            <div class="section-title">📊 Vital Signs (Optional)</div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Blood Pressure (e.g., 120/80)</label>
+                <input type="text" id="bp" placeholder="120/80">
+              </div>
+              <div class="input-group">
+                <label>Heart Rate (bpm)</label>
+                <input type="number" id="heart_rate" placeholder="72">
+              </div>
+              <div class="input-group">
+                <label>Temperature (°C)</label>
+                <input type="number" id="temperature" placeholder="37" step="0.1">
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-button">
+            🔍 ANALYZE WITH AI
+          </button>
+        </form>
+      </div>
+
+      <!-- STEP 2: Loading -->
+      <div id="loadingSection" class="hidden">
+        <div class="loading-screen">
+          <div class="spinner"></div>
+          <div class="loading-text">🤖 AI is analyzing the case...</div>
+          <p style="color: #94a3b8; margin-top: 15px;">Please wait, this will take just a few seconds</p>
+        </div>
+      </div>
+
+      <!-- STEP 3: Results -->
+      <div id="resultsSection" class="hidden">
+        <div class="results-screen">
+          <!-- Emergency Alert -->
+          <div id="emergencyAlert" class="hidden"
+            style="background: #fee2e2; border: 3px solid #dc2626; padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center;">
+            <h3 style="color: #991b1b; font-size: 22px;">🚨 URGENT: Immediate Medical Attention Required!</h3>
+          </div>
+
+          <!-- Main Diagnosis -->
+          <div class="diagnosis-box">
+            <div id="riskBadge" class="risk-badge"></div>
+            <h2 id="diagnosisText"></h2>
+            <div class="metrics" id="metricsText"></div>
+          </div>
+
+          <!-- Risk Heatmap -->
+          <div
+            style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div class="section-title">📊 Risk Assessment Heatmap</div>
+            <div id="heatmapGrid"
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+            </div>
+          </div>
+
+          <!-- Risk Breakdown -->
+          <div
+            style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div class="section-title">🎯 Risk Predictor Breakdown</div>
+            <div id="riskBreakdown"></div>
+          </div>
+
+          <!-- Analysis Details -->
+          <div class="result-card" id="analysisCard">
+            <div class="result-title">🔍 AI Analysis</div>
+            <div id="analysisContent"></div>
+          </div>
+
+          <!-- Recommendations -->
+          <div id="recommendationsCard" class="result-card">
+            <div class="result-title">💊 Recommendations</div>
+            <div id="recommendationsContent"></div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="action-btn primary" id="newCaseBtn">➕ New Case</button>
+            <button class="action-btn secondary" id="printBtn">🖨️ Print Report</button>
+            <button class="action-btn secondary" id="exportBtn">📄 Export</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app-simple.js"></script>
+</body>
+
+</html>

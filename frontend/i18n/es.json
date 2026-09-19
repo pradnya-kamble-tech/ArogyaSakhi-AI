@@ -1,0 +1,55 @@
+{
+  "lang.en": "Inglés",
+  "lang.es": "Español",
+
+  "title_pcw": "Trabajador de Salud Primaria — Registro de Caso",
+  "disclaimer_pcw": "No es un diagnóstico final. Las sugerencias de IA son solo orientativas.",
+  "age_label": "Edad (años):",
+  "duration_label": "Duración (días):",
+  "symptoms_legend": "Síntomas (seleccione todos los que apliquen)",
+  "severity_label": "Gravedad:",
+  "submit_button": "Enviar para revisión por IA",
+
+  "symptom.fever": "Fiebre",
+  "symptom.cough": "Tos",
+  "symptom.breathlessness": "Falta de aire",
+  "symptom.chest_pain": "Dolor torácico",
+  "symptom.rash": "Erupción",
+  "symptom.diarrhea": "Diarrea",
+  "symptom.vomiting": "Vómitos",
+  "symptom.headache": "Cefalea",
+
+  "severity.low": "Baja",
+  "severity.medium": "Media",
+  "severity.high": "Alta",
+
+  "ai_suggestion": "Sugerencia de IA:",
+  "confidence": "Confianza",
+  "score": "Puntuación",
+  "emergency": "EMERGENCIA: Caso de alto riesgo — busque atención inmediata.",
+  "case_id": "ID de caso",
+  "status": "Estado",
+  "request_second_opinion": "Solicitar segunda opinión",
+  "export_case": "Exportar caso",
+
+  "doctor_dashboard_title": "Panel Doctor — Casos Escalados",
+  "disclaimer_doctor": "Se requiere revisión del médico para casos escalados. Se registra auditoría.",
+  "doctor_name": "Nombre del médico:",
+  "doctor_recommendation": "Recomendación:",
+  "doctor_comments": "Comentarios:",
+  "submit_review": "Enviar revisión",
+  "no_escalated": "No hay casos escalados en este momento.",
+
+  "condition.respiratory_infection": "Infección respiratoria (posible neumonía/COVID)",
+  "condition.infectious_exanthem": "Exantema infeccioso",
+  "condition.acute_gastroenteritis": "Gastroenteritis aguda",
+  "condition.cardiorespiratory_concern": "Problema cardiorrespiratorio",
+  "condition.possible_systemic_infection": "Posible infección sistémica",
+  "condition.common_illness": "Enfermedad común/no específica",
+  "condition.undifferentiated": "Queja no diferenciada"
+  ,
+  "summary_template": "Sugerencia: {{condition}}. Riesgo: {{risk}}. Confianza: {{confidence}}%",
+  "suggestion.refer": "Referir a centro superior",
+  "suggestion.urgent": "Revisión urgente / Admitir",
+  "suggestion.homecare": "Cuidado en casa y revisión"
+}

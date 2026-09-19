@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Doctor Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Doctor Dashboard — Escalated Cases</h1>
+    <div id="langContainer" class="lang-switcher"></div>
+
+    <div class="disclaimer" data-i18n="disclaimer_doctor">Doctor review required for escalated cases. Audit is recorded.</div>
+
+    <div class="controls">
+      <label>Language: <select id="langSelect"><option value="en">English</option><option value="hi">हिन्दी</option></select></label>
+      <button id="refreshBtn" class="btn-secondary">Refresh</button>
+    </div>
+
+    <div id="cases"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

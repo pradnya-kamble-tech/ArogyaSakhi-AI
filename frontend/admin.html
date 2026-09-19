@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Panel - Healthcare DSS</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .nav { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .nav a { color: var(--accent); text-decoration: none; padding: 8px 16px; border-radius: 6px; background: #f1f5f9; }
+    .nav a:hover { background: #e2e8f0; }
+    .nav .user-info { margin-left: auto; color: var(--muted); font-size: 14px; }
+    .nav .logout { background: #fef2f2; color: #dc2626; cursor: pointer; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .tabs button { padding: 10px 20px; border: none; background: none; cursor: pointer; border-radius: 6px 6px 0 0; font-size: 14px; }
+    .tabs button.active { background: var(--accent); color: white; }
+    .tabs button:hover:not(.active) { background: #f1f5f9; }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
+    .card h3 { margin: 0 0 16px 0; }
+    
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .data-table th { background: #f8fafc; font-weight: 600; }
+    .data-table tr:hover { background: #f8fafc; }
+    
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; color: #475569; font-weight: 500; }
+    .form-group input, .form-group select { padding: 10px; border: 1px solid #d0d7e6; border-radius: 6px; }
+    
+    .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 4px; cursor: pointer; border: none; }
+    .btn-edit { background: #dbeafe; color: #1d4ed8; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-success { background: var(--green); color: white; }
+    
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: white; padding: 24px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-content h3 { margin: 0 0 20px 0; }
+    
+    .role-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .role-PCW { background: #dbeafe; color: #1d4ed8; }
+    .role-DOCTOR { background: #dcfce7; color: #16a34a; }
+    .role-SPECIALIST { background: #fef3c7; color: #d97706; }
+    .role-ADMIN { background: #fce7f3; color: #db2777; }
+    .role-AUDITOR { background: #e0e7ff; color: #4338ca; }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 1100px;">
+    <h1>⚙️ Admin Panel</h1>
+    
+    <div class="nav">
+      <a href="index.html">🏠 Home</a>
+      <a href="doctor.html">👨‍⚕️ Doctor</a>
+      <a href="analytics.html">📊 Analytics</a>
+      <span class="user-info" id="userInfo"></span>
+      <a href="#" class="logout" id="logoutBtn">Logout</a>
+    </div>
+
+    <div class="tabs">
+      <button class="active" onclick="showTab('users')">👥 Users</button>
+      <button onclick="showTab('patients')">🏥 Patients</button>
+      <button onclick="showTab('followups')">📅 Follow-ups</button>
+      <button onclick="showTab('system')">🔧 System</button>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="tab-users" class="tab-content active">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>User Management</h3>
+          <button onclick="openUserModal()">+ Add User</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Name</th><th>Username</th><th>Role</th><th>Facility</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Patients Tab -->
+    <div id="tab-patients" class="tab-content">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3>Patient Registry</h3>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="patientSearch" placeholder="Search patients..." style="padding:8px 12px;border:1px solid #d0d7e6;border-radius:6px;">
+            <button onclick="searchPatients()">Search</button>
+            <button onclick="openPatientModal()">+ Add Patient</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Name</th><th>Age</th><th>Phone</th><th>Cases</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="patientsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Follow-ups Tab -->
+    <div id="tab-followups" class="tab-content">
+      <div class="card">
+        <h3>📅 Pending Follow-ups (Next 7 Days)</h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>Date</th><th>Patient</th><th>Phone</th><th>Reason</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="followupsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- System Tab -->
+    <div id="tab-system" class="tab-content">
+      <div class="card">
+        <h3>System Information</h3>
+        <div id="systemInfo" style="font-family:monospace;background:#f8fafc;padding:16px;border-radius:8px;"></div>
+      </div>
+      <div class="card">
+        <h3>Reference Data</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button onclick="viewConditions()">View Conditions</button>
+          <button onclick="viewSymptoms()">View Symptoms</button>
+          <button onclick="viewVitalRanges()">View Vital Ranges</button>
+        </div>
+        <pre id="refData" style="margin-top:16px;background:#f8fafc;padding:16px;border-radius:8px;overflow-x:auto;max-height:400px;"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Modal -->
+  <div id="userModal" class="modal">
+    <div class="modal-content">
+      <h3 id="userModalTitle">Add User</h3>
+      <form id="userForm">
+        <input type="hidden" id="userId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="userUsername" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="userPassword" placeholder="Leave empty to keep unchanged">
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="userName" required>
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="userRole">
+              <option value="PCW">Primary Care Worker</option>
+              <option value="DOCTOR">Doctor</option>
+              <option value="SPECIALIST">Specialist</option>
+              <option value="ADMIN">Admin</option>
+              <option value="AUDITOR">Auditor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Facility</label>
+            <input type="text" id="userFacility">
+          </div>
+          <div class="form-group">
+            <label>Specialty</label>
+            <input type="text" id="userSpecialty" placeholder="For doctors only">
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:12px;justify-content:flex-end;">
+          <button type="button" class="btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Patient Modal -->
+  <div id="patientModal" class="modal">
+    <div class="modal-content">
+      <h3 id="patientModalTitle">Add Patient</h3>
+      <form id="patientForm">
+        <input type="hidden" id="patientId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="patientName" required>
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="patientAge" min="0" max="120">
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="patientGender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="patientPhone">
+          </div>
+          <div class="form-group">
+            <label>Blood Group</label>
+            <select id="patientBloodGroup">
+              <option value="">Unknown</option>
+              <option value="A+">A+</option><option value="A-">A-</option>
+              <option value="B+">B+</option><option value="B-">B-</option>
+              <option value="AB+">AB+</option><option value="AB-">AB-</option>
+              <option value="O+">O+</option><option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Village/Area</label>
+            <input type="text" id="patientVillage">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Allergies (comma-separated)</label>
+            <input type="text" id="patientAllergies" placeholder="e.g., Penicillin, Aspirin">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Chronic Conditions (comma-separated)</label>
+            <input type="text" id="patientConditions" placeholder="e.g., Diabetes, Hypertension">
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:12px;justify-content:flex-end;">
+          <button type="button" class="btn-secondary" onclick="closeModal('patientModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('authToken');
+    const userName = localStorage.getItem('userName');
+    if (userName) document.getElementById('userInfo').textContent = `👤 ${userName}`;
+    
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = '/login.html';
+    });
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (tab === 'users') loadUsers();
+      if (tab === 'patients') loadPatients();
+      if (tab === 'followups') loadFollowups();
+      if (tab === 'system') loadSystemInfo();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // Users
+    async function loadUsers() {
+      const res = await fetch('/admin/users');
+      const users = await res.json();
+      document.getElementById('usersTable').innerHTML = users.map(u => `
+        <tr>
+          <td>${u.name}</td>
+          <td><code>${u.username}</code></td>
+          <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+          <td>${u.facility || '-'}</td>
+          <td>
+            <button class="btn-sm btn-edit" onclick="editUser('${u.id}')">Edit</button>
+            <button class="btn-sm btn-delete" onclick="deleteUser('${u.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openUserModal(user = null) {
+      document.getElementById('userModalTitle').textContent = user ? 'Edit User' : 'Add User';
+      document.getElementById('userId').value = user?.id || '';
+      document.getElementById('userUsername').value = user?.username || '';
+      document.getElementById('userPassword').value = '';
+      document.getElementById('userName').value = user?.name || '';
+      document.getElementById('userRole').value = user?.role || 'PCW';
+      document.getElementById('userFacility').value = user?.facility || '';
+      document.getElementById('userSpecialty').value = user?.specialty || '';
+      openModal('userModal');
+    }
+
+    async function editUser(id) {
+      const res = await fetch('/admin/users');
+      const users = await res.json();
+      const user = users.find(u => u.id === id);
+      if (user) openUserModal(user);
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Delete this user?')) return;
+      await fetch('/admin/users/' + id, { method: 'DELETE' });
+      loadUsers();
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('userId').value;
+      const data = {
+        username: document.getElementById('userUsername').value,
+        name: document.getElementById('userName').value,
+        role: document.getElementById('userRole').value,
+        facility: document.getElementById('userFacility').value,
+        specialty: document.getElementById('userSpecialty').value
+      };
+      const pw = document.getElementById('userPassword').value;
+      if (pw) data.password = pw;
+
+      if (id) {
+        await fetch('/admin/users/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      } else {
+        await fetch('/admin/users', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      }
+      closeModal('userModal');
+      loadUsers();
+    });
+
+    // Patients
+    async function loadPatients(search = '') {
+      const url = search ? '/patients?search=' + encodeURIComponent(search) : '/patients';
+      const res = await fetch(url);
+      const patients = await res.json();
+      document.getElementById('patientsTable').innerHTML = patients.slice(0, 50).map(p => `
+        <tr>
+          <td><code>${p.id.slice(0,15)}</code></td>
+          <td>${p.name}</td>
+          <td>${p.age || '-'}</td>
+          <td>${p.phone || '-'}</td>
+          <td>${(p.caseIds || []).length}</td>
+          <td>
+            <button class="btn-sm btn-edit" onclick="editPatient('${p.id}')">Edit</button>
+            <button class="btn-sm btn-success" onclick="viewHistory('${p.id}')">History</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="6">No patients found</td></tr>';
+    }
+
+    function searchPatients() {
+      loadPatients(document.getElementById('patientSearch').value);
+    }
+
+    function openPatientModal(patient = null) {
+      document.getElementById('patientModalTitle').textContent = patient ? 'Edit Patient' : 'Add Patient';
+      document.getElementById('patientId').value = patient?.id || '';
+      document.getElementById('patientName').value = patient?.name || '';
+      document.getElementById('patientAge').value = patient?.age || '';
+      document.getElementById('patientGender').value = patient?.gender || 'Male';
+      document.getElementById('patientPhone').value = patient?.phone || '';
+      document.getElementById('patientBloodGroup').value = patient?.bloodGroup || '';
+      document.getElementById('patientVillage').value = patient?.village || '';
+      document.getElementById('patientAllergies').value = (patient?.allergies || []).join(', ');
+      document.getElementById('patientConditions').value = (patient?.chronicConditions || []).join(', ');
+      openModal('patientModal');
+    }
+
+    async function editPatient(id) {
+      const res = await fetch('/patients/' + id);
+      const patient = await res.json();
+      openPatientModal(patient);
+    }
+
+    async function viewHistory(id) {
+      const res = await fetch('/patients/' + id + '/history');
+      const history = await res.json();
+      alert(`Patient: ${history.patient.name}\nCases: ${history.cases.length}\nFollow-ups: ${history.followUps.length}`);
+    }
+
+    document.getElementById('patientForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('patientId').value;
+      const data = {
+        name: document.getElementById('patientName').value,
+        age: Number(document.getElementById('patientAge').value) || undefined,
+        gender: document.getElementById('patientGender').value,
+        phone: document.getElementById('patientPhone').value,
+        bloodGroup: document.getElementById('patientBloodGroup').value,
+        village: document.getElementById('patientVillage').value,
+        allergies: document.getElementById('patientAllergies').value.split(',').map(s => s.trim()).filter(Boolean),
+        chronicConditions: document.getElementById('patientConditions').value.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      if (id) {
+        await fetch('/patients/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      } else {
+        await fetch('/patients', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      }
+      closeModal('patientModal');
+      loadPatients();
+    });
+
+    // Follow-ups
+    async function loadFollowups() {
+      const res = await fetch('/follow-ups/pending?days=14');
+      const followups = await res.json();
+      document.getElementById('followupsTable').innerHTML = followups.map(f => `
+        <tr>
+          <td>${new Date(f.scheduledDate).toLocaleDateString()}</td>
+          <td>${f.patientName}</td>
+          <td>${f.patientPhone || '-'}</td>
+          <td>${f.reason || '-'}</td>
+          <td><span class="role-badge role-PCW">${f.status}</span></td>
+          <td>
+            <button class="btn-sm btn-success" onclick="markFollowupDone('${f.patientId}','${f.id}')">Complete</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="6">No pending follow-ups</td></tr>';
+    }
+
+    async function markFollowupDone(patientId, followUpId) {
+      await fetch(`/patients/${patientId}/follow-ups/${followUpId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ status: 'COMPLETED', completedAt: new Date().toISOString() })
+      });
+      loadFollowups();
+    }
+
+    // System
+    async function loadSystemInfo() {
+      const res = await fetch('/health');
+      const health = await res.json();
+      document.getElementById('systemInfo').innerHTML = `
+        <p><strong>Status:</strong> ${health.status}</p>
+        <p><strong>Version:</strong> ${health.version}</p>
+        <p><strong>Server Time:</strong> ${health.timestamp}</p>
+      `;
+    }
+
+    async function viewConditions() {
+      const res = await fetch('/reference/conditions');
+      document.getElementById('refData').textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function viewSymptoms() {
+      const res = await fetch('/reference/symptoms');
+      document.getElementById('refData').textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    async function viewVitalRanges() {
+      const res = await fetch('/reference/vital-ranges');
+      document.getElementById('refData').textContent = JSON.stringify(await res.json(), null, 2);
+    }
+
+    // Initial load
+    loadUsers();
+  </script>
+</body>
+</html>

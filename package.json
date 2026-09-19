@@ -1,0 +1,11 @@
+{
+  "name": "arogyasakhi-ai",
+  "version": "3.0.0",
+  "private": true,
+  "scripts": {
+    "backend": "cd backend-fastapi && .venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8001 --host 127.0.0.1",
+    "frontend": "cd frontend-modern && npm run dev",
+    "frontend:install": "cd frontend-modern && npm install",
+    "backend:install": "cd backend-fastapi && .venv\\Scripts\\python.exe -m pip install -r requirements.txt"
+  }
+}

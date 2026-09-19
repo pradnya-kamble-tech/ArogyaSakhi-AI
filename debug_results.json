@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Case 1: Fever + Cough + 6 Days (Duration Modifier)",
+    "baseScore": 40,
+    "finalRisk": "Amber",
+    "reasons": [
+      "Symptoms suggest possible undefined (Clinical overlap noted)",
+      "Sub-acute persistence (5–6 days): +5"
+    ],
+    "reasoningLog": [
+      {
+        "modifier": "Base Symptoms",
+        "impact": 30,
+        "reason": "2 symptom(s) detected"
+      },
+      {
+        "modifier": "Duration Modifier",
+        "impact": 5,
+        "reason": "Sub-acute persistence (5–6 days)"
+      }
+    ]
+  },
+  {
+    "name": "Case 2: 18mo + Diarrhea + Vomiting (Pediatric Cluster)",
+    "baseScore": 90,
+    "finalRisk": "Red",
+    "reasons": [
+      "Clinical presentation strongly aligns with undefined (100% confidence)",
+      "Presenting severity: Medium",
+      "High pediatric vulnerability (<2y)"
+    ],
+    "reasoningLog": [
+      {
+        "modifier": "Base Symptoms",
+        "impact": 30,
+        "reason": "2 symptom(s) detected"
+      }
+    ]
+  },
+  {
+    "name": "Case 3: High BP + Headache (Vital Interaction)",
+    "baseScore": 45,
+    "finalRisk": "Amber",
+    "reasons": [
+      "Symptoms suggest possible undefined (Clinical overlap noted)",
+      "Elevated blood pressure",
+      "Vital interaction: hypertensive headache (+10)"
+    ],
+    "reasoningLog": [
+      {
+        "modifier": "Base Symptoms",
+        "impact": 15,
+        "reason": "1 symptom(s) detected"
+      },
+      {
+        "modifier": "Vital Interaction",
+        "impact": 10,
+        "reason": "High BP + headache — hypertensive warning"
+      }
+    ]
+  }
+]

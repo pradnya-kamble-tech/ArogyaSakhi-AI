@@ -1,0 +1,40 @@
+.vercel
+
+# Node
+node_modules/
+frontend-modern/node_modules/
+
+# Python virtual environments
+backend-fastapi/.venv/
+.venv/
+
+# Byte-compiled / cached files
+**/__pycache__/
+*.py[cod]
+
+# Distribution / build
+dist/
+build/
+
+# Logs and temp files
+logs/
+*.log
+tmp/
+temp/
+
+# Environment files
+.env
+.env.local
+
+# Databases
+*.db
+
+# Uploads and generated media
+backend-fastapi/uploads/
+
+# Editor directories
+.vscode/
+.idea/
+
+# macOS
+.DS_Store

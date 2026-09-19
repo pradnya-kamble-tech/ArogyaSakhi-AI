@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Healthcare DSS Login</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #020617;
+        color: #e2e8f0;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 20% 20%, rgba(96, 165, 250, 0.18), transparent 25%),
+                    radial-gradient(circle at 80% 15%, rgba(168, 85, 247, 0.14), transparent 22%),
+                    #02101f;
+        padding: 20px;
+      }
+      .login-container {
+        width: min(100%, 420px);
+        padding: 36px;
+        background: rgba(14, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 32px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(18px);
+      }
+      .login-container h1 {
+        margin: 0 0 12px;
+        font-size: 2.4rem;
+      }
+      .login-container p.subtitle {
+        margin: 0 0 28px;
+        color: #94a3b8;
+      }
+      .login-container input {
+        width: 100%;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        background: rgba(15, 23, 42, 0.9);
+        color: #e2e8f0;
+        outline: none;
+      }
+      .login-container button {
+        width: 100%;
+        border: none;
+        border-radius: 16px;
+        padding: 14px 16px;
+        font-size: 1rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
+        color: white;
+        cursor: pointer;
+      }
+      .demo-creds {
+        margin-top: 24px;
+        padding: 18px;
+        border-radius: 24px;
+        background: rgba(148, 163, 184, 0.08);
+        color: #cbd5e1;
+      }
+      .demo-creds code {
+        background: rgba(148, 163, 184, 0.16);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .error {
+        display: none;
+        margin-bottom: 16px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(248, 113, 113, 0.14);
+        color: #fecaca;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Healthcare DSS</h1>
+      <p class="subtitle">AI-powered enterprise healthcare platform</p>
+      <div id="error" class="error"></div>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Username" required autofocus />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Sign In</button>
+      </form>
+      <div class="demo-creds">
+        <div><strong>Try demo accounts</strong></div>
+        <p>PCW: <code>pcw1</code> / <code>pcw123</code></p>
+        <p>Doctor: <code>doctor1</code> / <code>doc123</code></p>
+        <p>Admin: <code>admin</code> / <code>admin123</code></p>
+      </div>
+    </div>
+
+    <script>
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const role = localStorage.getItem('userRole');
+        redirectByRole(role);
+      }
+      function redirectByRole(role) {
+        switch (role) {
+          case 'DOCTOR':
+          case 'SPECIALIST':
+            window.location.href = '/doctor.html';
+            break;
+          case 'ADMIN':
+          case 'AUDITOR':
+            window.location.href = '/admin.html';
+            break;
+          default:
+            window.location.href = '/index.html';
+        }
+      }
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('error');
+        errorDiv.style.display = 'none';
+        try {
+          const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Login failed');
+          }
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('userName', data.user.name);
+          localStorage.setItem('userRole', data.user.role);
+          localStorage.setItem('userId', data.user.id);
+          redirectByRole(data.user.role);
+        } catch (err) {
+          errorDiv.textContent = err.message;
+          errorDiv.style.display = 'block';
+        }
+      });
+    </script>
+  </body>
+</html>

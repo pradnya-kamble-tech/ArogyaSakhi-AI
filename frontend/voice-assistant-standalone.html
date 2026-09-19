@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-End Voice Assistant | Healthcare DSS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #f43f5e;
+            --accent: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .premium-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 550px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .protocol-warning {
+            background: #450a0a;
+            color: #fca5a5;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid #7f1d1d;
+            display: none;
+        }
+
+        .visualizer-container {
+            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mic-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .mic-button {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px -5px var(--primary-glow);
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+            background: var(--accent);
+        }
+
+        .mic-button.active {
+            background: var(--danger);
+            animation: pulse-border 1.2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.6);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(244, 63, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0);
+            }
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .status-badge.error {
+            background: rgba(244, 63, 94, 0.1);
+            color: #f43f5e;
+        }
+
+        .transcript-preview {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+            min-height: 40px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .tools {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="premium-card">
+        <div class="header">
+            <h1>Healthcare AIS</h1>
+            <p>Diagnostic Audio Interface</p>
+        </div>
+
+        <div id="protocolWarn" class="protocol-warning">
+            ⚠ CRITICAL: Chrome blocks Speech API on "file://" links.<br>
+            Please use <strong>http://localhost:5000</strong>
+        </div>
+
+        <div class="visualizer-container">
+            <canvas id="viz"></canvas>
+        </div>
+
+        <div class="mic-section">
+            <button id="mic" class="mic-button" title="Start/Stop Processing">
+                <span id="icon">🎤</span>
+            </button>
+            <div id="badge" class="status-badge">
+                <span id="label">SYSTEM READY</span>
+            </div>
+        </div>
+
+        <div class="transcript-preview" id="live">...speak clinical notes...</div>
+
+        <div class="final-box">
+            <textarea id="output" placeholder="Final validated transcript..."></textarea>
+            <div class="tools">
+                <button id="clear" class="btn-link">Clear Transcript</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const isLocal = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+        if (!isLocal) document.getElementById('protocolWarn').style.display = 'block';
+
+        let recognition = null;
+        let isRec = false;
+        let stream = null;
+        let animation = null;
+
+        const mic = document.getElementById('mic');
+        const icon = document.getElementById('icon');
+        const badge = document.getElementById('badge');
+        const label = document.getElementById('label');
+        const live = document.getElementById('live');
+        const output = document.getElementById('output');
+        const canvas = document.getElementById('viz');
+        const ctx = canvas.getContext('2d');
+
+        async function initViz() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaStreamSource(stream);
+                const anal = audioCtx.createAnalyser();
+                anal.fftSize = 64;
+                source.connect(anal);
+                const data = new Uint8Array(anal.frequencyBinCount);
+
+                function draw() {
+                    animation = requestAnimationFrame(draw);
+                    anal.getByteFrequencyData(data);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const bw = (canvas.width / data.length) * 2;
+                    let x = 0;
+                    for (let i = 0; i < data.length; i++) {
+                        const bh = (data[i] / 255) * canvas.height;
+                        ctx.fillStyle = `hsl(${230 + i * 2}, 80%, 70%)`;
+                        ctx.fillRect(x, canvas.height - bh, bw - 1, bh);
+                        x += bw;
+                    }
+                }
+                draw();
+            } catch (e) { label.textContent = "MIC ACCESS ERROR"; }
+        }
+
+        function initRec() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { label.textContent = "API NOT SUPPORTED"; return null; }
+            const rec = new SR();
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.onstart = () => {
+                isRec = true;
+                badge.className = 'status-badge active';
+                label.textContent = "LISTENING...";
+                mic.className = 'mic-button active';
+                icon.textContent = '⏹️';
+            };
+            rec.onsoundstart = () => { label.textContent = "SOUND DETECTED"; };
+            rec.onspeechstart = () => { label.textContent = "SPEECH DETECTED"; };
+            rec.onresult = (e) => {
+                let inter = ''; let fini = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) fini += e.results[i][0].transcript;
+                    else inter += e.results[i][0].transcript;
+                }
+                if (inter) live.textContent = inter;
+                if (fini) {
+                    const cur = output.value.trim();
+                    const sep = (cur && !/[.!?]$/.test(cur)) ? '. ' : ' ';
+                    output.value = (cur + sep + fini.trim()).trim();
+                    output.scrollTop = output.scrollHeight;
+                    live.textContent = '';
+                    label.textContent = "TRANSCRIBED";
+                }
+            };
+            rec.onerror = (evt) => {
+                label.textContent = "ERROR: " + evt.error.toUpperCase();
+                badge.className = 'status-badge error';
+            };
+            rec.onend = () => {
+                if (isRec) { setTimeout(() => { if (isRec) try { rec.start(); } catch (err) { } }, 500); }
+                else { resetUI(); }
+            };
+            return rec;
+        }
+
+        function resetUI() {
+            mic.className = 'mic-button';
+            icon.textContent = '🎤';
+            badge.className = 'status-badge';
+            label.textContent = "SYSTEM READY";
+            live.textContent = "...speak clinical notes...";
+        }
+
+        mic.onclick = async () => {
+            if (isRec) {
+                isRec = false;
+                if (recognition) recognition.stop();
+                if (animation) cancelAnimationFrame(animation);
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                resetUI();
+            } else {
+                if (!isLocal) alert("IMPORTANT: Running this file directly from a folder (file:// protocol) blocks Speech Transcription in Chrome. Please serve via http://localhost:5000 or use the Microsoft Edge browser.");
+                await initViz();
+                if (!recognition) recognition = initRec();
+                recognition.start();
+            }
+        };
+
+        document.getElementById('clear').onclick = () => output.value = '';
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+{
+  "patients": [
+    {
+      "id": "pat_mlrtprou_ciys",
+      "name": "fsgxhj",
+      "age": 21,
+      "gender": "Male",
+      "dateOfBirth": null,
+      "phone": "",
+      "email": "",
+      "address": "",
+      "village": "",
+      "district": "",
+      "state": "",
+      "pincode": "",
+      "aadharLast4": "",
+      "healthId": "",
+      "bloodGroup": "",
+      "allergies": [],
+      "chronicConditions": [],
+      "currentMedications": [],
+      "familyHistory": [],
+      "emergencyContact": {
+        "name": "",
+        "phone": "",
+        "relation": ""
+      },
+      "insuranceProvider": "",
+      "insurancePolicyNumber": "",
+      "caseIds": [],
+      "followUps": [],
+      "createdAt": "2026-02-18T09:22:17.070Z",
+      "updatedAt": "2026-02-18T09:22:17.070Z",
+      "createdBy": "System"
+    },
+    {
+      "id": "pat_mlrv9i6p_f8rr",
+      "name": "sourav",
+      "age": 28,
+      "gender": "Male",
+      "dateOfBirth": null,
+      "phone": "",
+      "email": "",
+      "address": "",
+      "village": "oune",
+      "district": "",
+      "state": "",
+      "pincode": "",
+      "aadharLast4": "",
+      "healthId": "",
+      "bloodGroup": "B+",
+      "allergies": [
+        "aspirin"
+      ],
+      "chronicConditions": [],
+      "currentMedications": [],
+      "familyHistory": [],
+      "emergencyContact": {
+        "name": "",
+        "phone": "",
+        "relation": ""
+      },
+      "insuranceProvider": "",
+      "insurancePolicyNumber": "",
+      "caseIds": [],
+      "followUps": [],
+      "createdAt": "2026-02-18T10:05:37.489Z",
+      "updatedAt": "2026-02-18T10:05:37.489Z",
+      "createdBy": "System"
+    }
+  ]
+}
