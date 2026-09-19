@@ -2,47 +2,151 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design Tokens ─────────────────────────────────────────── */
 :root {
   color-scheme: light;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background-color: #FFFFFF;
-  color: #111827;
+
+  /* Typography */
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Colors */
+  --c-ivory:       #FAF8F5;
+  --c-ivory-50:    #FDFCFA;
+  --c-ivory-200:   #F2EDE6;
+  --c-charcoal:    #2C2C2C;
+  --c-charcoal-lt: #4A4A4A;
+  --c-charcoal-xlt:#6B6B6B;
+  --c-botanical:   #2D5A3D;
+  --c-botanical-lt:#3A7350;
+  --c-botanical-dk:#1E3F2B;
+  --c-botanical-m: #8BAF9A;
+  --c-sage:        #A3B8A0;
+  --c-sage-lt:     #C5D4C2;
+  --c-terracotta:  #C4704B;
+  --c-terracotta-lt:#D4916F;
+  --c-terracotta-m:#E8C4B0;
+  --c-coral:       #E07A5F;
+  --c-risk-green:  #3A7350;
+  --c-risk-yellow: #C49A3C;
+  --c-risk-red:    #B5403A;
+  --c-divider:     #E5E0D8;
+  --c-border:      #DDD7CD;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  /* Radius */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(44,44,44,0.06);
+  --shadow-md:  0 4px 12px rgba(44,44,44,0.08);
+  --shadow-lg:  0 12px 40px rgba(44,44,44,0.10);
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration: 300ms;
 }
 
+/* ── Base ──────────────────────────────────────────────────── */
 body {
+  font-family: var(--font-sans);
+  background-color: var(--c-ivory);
+  color: var(--c-charcoal);
   min-height: 100vh;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #F0F9FF 100%);
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
 }
 
-button {
-  font: inherit;
+button { font: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+/* ── Editorial Typography ─────────────────────────────────── */
+.text-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--c-charcoal);
+}
+.text-display-xl { font-size: clamp(2.5rem, 5vw, 4.5rem); }
+.text-display-lg { font-size: clamp(2rem, 4vw, 3.25rem); }
+.text-display-md { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+.text-display-sm { font-size: clamp(1.25rem, 2vw, 1.75rem); }
+
+.text-body       { font-family: var(--font-sans); font-size: 1rem;    line-height: 1.6; }
+.text-body-sm    { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.5; }
+.text-body-xs    { font-family: var(--font-sans); font-size: 0.75rem;  line-height: 1.4; }
+
+.text-label {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-charcoal-xlt);
 }
 
-/* Smooth transitions */
-* {
-  @apply transition-colors duration-200;
+.text-number {
+  font-family: var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ── Editorial Dividers ───────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--c-divider);
+  margin: var(--space-lg) 0;
+}
+.divider-thick {
+  border: none;
+  border-top: 2px solid var(--c-charcoal);
+  margin: var(--space-xl) 0;
 }
 
-::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+/* ── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-sage); border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--c-botanical-m); }
+
+/* ── Utility: Stagger children animation ──────────────────── */
+.stagger > * {
+  opacity: 0;
+  animation: fadeUp 0.5s var(--ease-out) forwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.stagger > *:nth-child(4) { animation-delay: 0.18s; }
+.stagger > *:nth-child(5) { animation-delay: 0.24s; }
+.stagger > *:nth-child(6) { animation-delay: 0.30s; }
+.stagger > *:nth-child(7) { animation-delay: 0.36s; }
+.stagger > *:nth-child(8) { animation-delay: 0.42s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 rounded-full hover:bg-gray-500;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+/* ── Utility: Page transition ─────────────────────────────── */
+.page-enter {
+  animation: fadeUp 0.4s var(--ease-out) both;
 }

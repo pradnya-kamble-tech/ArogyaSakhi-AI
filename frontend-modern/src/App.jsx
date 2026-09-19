@@ -19,6 +19,7 @@ import AIReports from './pages/AIReports';
 import PatientDetails from './pages/PatientDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import FeatureShell from './components/FeatureShell';
+import DesignShowcase from './pages/DesignShowcase';
 
 function App() {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ function App() {
         <Route path="/ai-analytics" element={<ProtectedRoute allowedRoles={['DOCTOR', 'ADMIN', 'SPECIALIST', 'AUDITOR']}><FeatureShell onLogout={handleLogout}><AIAnalytics /></FeatureShell></ProtectedRoute>} />
         <Route path="/ai-reports" element={<ProtectedRoute allowedRoles={allRoles}><FeatureShell onLogout={handleLogout}><AIReports /></FeatureShell></ProtectedRoute>} />
         <Route path="/patient/:id" element={<ProtectedRoute allowedRoles={['PCW', 'ASHA_WORKER', 'DOCTOR', 'ADMIN']}><FeatureShell onLogout={handleLogout}><PatientDetails /></FeatureShell></ProtectedRoute>} />
+        <Route path="/design" element={<DesignShowcase />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
