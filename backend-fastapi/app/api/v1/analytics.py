@@ -122,7 +122,7 @@ def _dashboard_analytics_impl(db: Session = Depends(get_db), user: User = Depend
         if len(recommendations) >= 6:
             break
 
-    today = func.curdate()
+    today = func.current_date()
     closed_cases_today = (
         db.query(EmergencyAlert)
         .filter(EmergencyAlert.status != "open")

@@ -12,8 +12,13 @@ def _create_engine_with_fallback():
         # test connection
         with e.connect() as conn:
             conn.execute(text("SELECT 1"))
+            # test if JSON is supported
+            try:
+                conn.execute(text("CREATE TEMPORARY TABLE _test_json (data JSON)"))
+            except Exception:
+                raise OperationalError("JSON not supported by this DB version", None, None)
         return e
-    except OperationalError:
+    except Exception:
         # fallback to sqlite in the current backend-fastapi folder
         fallback_url = "sqlite:///./dev.db"
         e = create_engine(fallback_url, connect_args={"check_same_thread": False})
@@ -296,6 +301,13 @@ def migrate_schema():
         for col, ddl in hospital_cols.items():
             _add_column_if_missing("hospitals", col, ddl)
 
+    symptom_cols = {
+        "body_region": "body_region VARCHAR(128) NULL",
+    }
+    if "symptoms" in tables:
+        for col, ddl in symptom_cols.items():
+            _add_column_if_missing("symptoms", col, ddl)
+
 
 def init_db():
     from app.models import (  # noqa: F401
@@ -343,8 +355,10 @@ def init_db():
                 )
 
         root_engine.dispose()
+        print(f"DATABASE: Successfully connected to MySQL at {settings.DB_HOST}:{settings.DB_PORT}")
     except OperationalError:
         # MySQL not reachable; running in fallback sqlite mode. Continue.
+        print(f"DATABASE: MySQL unreachable at {settings.DB_HOST}:{settings.DB_PORT}. Falling back to SQLite dev.db.")
         pass
 
     # Ensure models are created on the selected engine (MySQL or fallback sqlite)

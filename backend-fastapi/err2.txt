@@ -1,0 +1,111 @@
+Traceback (most recent call last):
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.ProgrammingError: (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'JSON, \n\tcreated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id)\n)' at line 7")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\verify.py", line 4, in <module>
+    app.seed.seed_database(True)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\app\seed.py", line 209, in seed_database
+    raise e
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\app\seed.py", line 34, in seed_database
+    reset_database()
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\app\seed.py", line 28, in reset_database
+    Base.metadata.create_all(bind=engine)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\schema.py", line 5868, in create_all
+    bind._run_ddl_visitor(
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3253, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2459, in _run_ddl_visitor
+    visitorcallable(self.dialect, self, **kwargs).traverse_single(element)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\visitors.py", line 664, in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\ddl.py", line 918, in visit_metadata
+    self.traverse_single(
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\visitors.py", line 664, in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\ddl.py", line 956, in visit_table
+    )._invoke_with(self.connection)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\ddl.py", line 314, in _invoke_with
+    return bind.execute(self)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\sql\ddl.py", line 180, in _execute_on_connection
+    return connection._execute_ddl(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1529, in _execute_ddl
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+  File "C:\ArogyaSakhi-AI-main\backend-fastapi\.venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.ProgrammingError: (pymysql.err.ProgrammingError) (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'JSON, \n\tcreated_at DATETIME NOT NULL, \n\tPRIMARY KEY (id)\n)' at line 7")
+[SQL: 
+CREATE TABLE activity_logs (
+	id VARCHAR(64) NOT NULL, 
+	user_id VARCHAR(64), 
+	action VARCHAR(128) NOT NULL, 
+	entity_type VARCHAR(64), 
+	entity_id VARCHAR(64), 
+	metadata JSON, 
+	created_at DATETIME NOT NULL, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/f405)
