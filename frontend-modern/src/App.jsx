@@ -20,6 +20,9 @@ import PatientDetails from './pages/PatientDetails';
 import ProtectedRoute from './components/ProtectedRoute';
 import FeatureShell from './components/FeatureShell';
 import DesignShowcase from './pages/DesignShowcase';
+import LegacyLogin from './pages/LegacyLogin';
+import LegacySignup from './pages/LegacySignup';
+import LegacyLanding from './pages/LegacyLanding';
 
 function App() {
   const navigate = useNavigate();
@@ -64,6 +67,10 @@ function App() {
         <Route path="/ai-reports" element={<ProtectedRoute allowedRoles={allRoles}><FeatureShell onLogout={handleLogout}><AIReports /></FeatureShell></ProtectedRoute>} />
         <Route path="/patient/:id" element={<ProtectedRoute allowedRoles={['PCW (ASHA)', 'PCW (ASHA)', 'DOCTOR', 'ADMIN']}><FeatureShell onLogout={handleLogout}><PatientDetails /></FeatureShell></ProtectedRoute>} />
         <Route path="/design" element={<DesignShowcase />} />
+
+        <Route path="/legacy/login" element={<LegacyLogin />} />
+        <Route path="/legacy/signup" element={<LegacySignup />} />
+        <Route path="/legacy" element={<LegacyLanding />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -3,17 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Input, Card } from '../components/design/Editorial';
 import { useTranslation } from 'react-i18next';
 import { mockUsers } from '../mocks';
+import { login } from '../services/api';
 
 export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleRoleLogin = (roleMock) => {
-    // In Stage 2, forms update mock state visually.
-    localStorage.setItem('userRole', roleMock.role);
-    localStorage.setItem('userName', roleMock.name);
-    // After login, send to the global /dashboard placeholder/app shell
-    navigate('/dashboard');
+  const submitLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate('/home');
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    }
+  };
+
+  const handleRoleLogin = async (roleMock) => {
+    try {
+      await login(roleMock.email || roleMock.id.toLowerCase(), 'password123');
+      navigate('/home');
+    } catch (err) {
+      // fallback to mock if api fails
+      localStorage.setItem('userRole', roleMock.role);
+      localStorage.setItem('userName', roleMock.name);
+      navigate('/home');
+    }
   };
 
   return (
@@ -41,9 +59,10 @@ export default function Login() {
         <div className="max-w-md w-full">
           <h1 className="text-display-xl mb-8">Sign In</h1>
 
-          <form className="flex flex-col gap-6" onSubmit={(e) => { e.preventDefault(); handleRoleLogin(mockUsers[1]); }}>
-            <Input label="HEALTH ID OR EMAIL" id="email" placeholder="E.g., HID-4589" required />
-            <Input label="PASSWORD" id="password" type="password" placeholder="Enter secure password" required />
+          <form className="flex flex-col gap-6" onSubmit={submitLogin}>
+            {error && <div className="text-red-500 text-sm bg-red-50 p-3 rounded">{error}</div>}
+            <Input label="HEALTH ID OR EMAIL" id="email" placeholder="E.g., HID-4589" required value={email} onChange={e => setEmail(e.target.value)} />
+            <Input label="PASSWORD" id="password" type="password" placeholder="Enter secure password" required value={password} onChange={e => setPassword(e.target.value)} />
 
             <div className="flex justify-between items-center mt-2">
               <label className="flex items-center text-body-sm text-[#6B6B6B] gap-2">
