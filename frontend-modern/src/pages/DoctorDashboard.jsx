@@ -13,7 +13,7 @@ export default function DoctorDashboard({ onLogout }) {
 
   const load = () => {
     fetchDashboard().then(setAnalytics).catch((e) => setError(e.message));
-    fetchAlerts().then(setAlerts).catch(() => {});
+    fetchAlerts().then(setAlerts).catch(() => { });
   };
 
   const handleAlertAction = async (alertId, action) => {
@@ -39,10 +39,10 @@ export default function DoctorDashboard({ onLogout }) {
 
   const chartData = analytics
     ? [
-        { name: 'High Risk', value: analytics.highRiskCount || 0 },
-        { name: 'Medium', value: analytics.mediumRiskCount || 0 },
-        { name: 'Low Risk', value: analytics.lowRiskCount || 0 }
-      ]
+      { name: 'High Risk', value: analytics.highRiskCount || 0 },
+      { name: 'Medium', value: analytics.mediumRiskCount || 0 },
+      { name: 'Low Risk', value: analytics.lowRiskCount || 0 }
+    ]
     : [];
 
   const nav = (
@@ -95,18 +95,17 @@ export default function DoctorDashboard({ onLogout }) {
               </span>
             )}
           </div>
-          
+
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {alerts.map((a) => (
               <div key={a.id}>
-                <div 
-                  className={`rounded-lg border-l-4 p-5 transition cursor-pointer ${
-                    a.status === 'open' 
-                      ? 'border-l-medical-red bg-medical-red/5 border border-medical-red/20' 
+                <div
+                  className={`rounded-lg border-l-4 p-5 transition cursor-pointer ${a.status === 'open'
+                      ? 'border-l-medical-red bg-medical-red/5 border border-medical-red/20'
                       : a.status === 'accepted'
-                      ? 'border-l-medical-amber bg-medical-amber/5 border border-medical-amber/20'
-                      : 'border-l-medical-green bg-medical-green/5 border border-medical-green/20'
-                  }`}
+                        ? 'border-l-medical-amber bg-medical-amber/5 border border-medical-amber/20'
+                        : 'border-l-medical-green bg-medical-green/5 border border-medical-green/20'
+                    }`}
                   onClick={() => setExpandedAlert(expandedAlert === a.id ? null : a.id)}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -123,17 +122,16 @@ export default function DoctorDashboard({ onLogout }) {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                        a.status === 'open' ? 'bg-medical-red/20 text-medical-red' :
-                        a.status === 'accepted' ? 'bg-medical-amber/20 text-medical-amber' :
-                        'bg-medical-green/20 text-medical-green'
-                      }`}>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${a.status === 'open' ? 'bg-medical-red/20 text-medical-red' :
+                          a.status === 'accepted' ? 'bg-medical-amber/20 text-medical-amber' :
+                            'bg-medical-green/20 text-medical-green'
+                        }`}>
                         {a.status?.toUpperCase()}
                       </span>
                       {expandedAlert === a.id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                     </div>
                   </div>
-                  
+
                   <p className="mt-3 text-sm text-medical-gray-700">{a.message}</p>
                 </div>
 
@@ -153,11 +151,10 @@ export default function DoctorDashboard({ onLogout }) {
                                   <p className="text-sm font-medium text-medical-gray-900 mt-1">{pred.probable_condition}</p>
                                   <p className="text-xs text-medical-gray-600 mt-1">Score: {(pred.risk_score * 100).toFixed(1)}%</p>
                                 </div>
-                                <span className={`inline-block px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${
-                                  pred.risk_level === 'Red' ? 'bg-medical-red/20 text-medical-red' :
-                                  pred.risk_level === 'Yellow' ? 'bg-medical-amber/20 text-medical-amber' :
-                                  'bg-medical-green/20 text-medical-green'
-                                }`}>
+                                <span className={`inline-block px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${pred.risk_level === 'Red' ? 'bg-medical-red/20 text-medical-red' :
+                                    pred.risk_level === 'Yellow' ? 'bg-medical-amber/20 text-medical-amber' :
+                                      'bg-medical-green/20 text-medical-green'
+                                  }`}>
                                   {pred.risk_level}
                                 </span>
                               </div>
@@ -186,17 +183,38 @@ export default function DoctorDashboard({ onLogout }) {
                     {/* Action Buttons */}
                     {a.status === 'open' && (
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-medical-gray-300">
-                        <button 
-                          onClick={() => handleAlertAction(a.id, 'accept')} 
+                        <button
+                          onClick={() => handleAlertAction(a.id, 'accept')}
                           className="rounded-lg bg-medical-green text-white px-4 py-2 text-sm font-medium hover:bg-green-700 transition shadow-sm"
                         >
                           ✓ Accept & Review
                         </button>
-                        <button 
-                          onClick={() => handleAlertAction(a.id, 'reject')} 
+                        <button
+                          onClick={() => handleAlertAction(a.id, 'reject')}
                           className="rounded-lg bg-medical-red text-white px-4 py-2 text-sm font-medium hover:bg-red-700 transition shadow-sm"
                         >
                           ✕ Decline
+                        </button>
+                      </div>
+                    )}
+
+                    {a.status === 'accepted' && (
+                      <div className="pt-3 border-t border-medical-gray-300 space-y-3">
+                        <p className="text-sm font-bold text-medical-gray-900">Prescription / Orders</p>
+                        <textarea
+                          placeholder="Type medication or orders here..."
+                          className="w-full rounded-lg border border-medical-gray-300 p-2 text-sm outline-none focus:border-medical-blue-light"
+                          rows="3"
+                          id={`rx-${a.id}`}
+                        />
+                        <button
+                          onClick={() => {
+                            const val = document.getElementById(`rx-${a.id}`)?.value;
+                            handleAlertAction(a.id, 'prescribe', { notes: val });
+                          }}
+                          className="rounded-lg bg-medical-blue-light text-white px-4 py-2 text-sm font-medium hover:bg-medical-blue-dark transition shadow-sm"
+                        >
+                          Submit Prescription
                         </button>
                       </div>
                     )}
@@ -204,7 +222,7 @@ export default function DoctorDashboard({ onLogout }) {
                 )}
               </div>
             ))}
-            
+
             {!alerts.length && (
               <div className="rounded-lg bg-medical-soft-white border border-medical-gray-300 p-6 text-center">
                 <CheckCircle2 className="h-12 w-12 text-medical-green mx-auto mb-3 opacity-50" />
@@ -224,12 +242,12 @@ export default function DoctorDashboard({ onLogout }) {
               <BarChart data={chartData}>
                 <XAxis dataKey="name" stroke="#6B7280" style={{ fontSize: '11px' }} />
                 <YAxis stroke="#6B7280" style={{ fontSize: '11px' }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#FFFFFF', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#FFFFFF',
                     border: '1px solid #E5E7EB',
                     borderRadius: '8px'
-                  }} 
+                  }}
                 />
                 <Bar dataKey="value" fill="#0EA5E9" radius={[8, 8, 0, 0]} />
               </BarChart>

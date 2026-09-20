@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input, Card } from '../components/design/Editorial';
-import { useTranslation } from 'react-i18next';
-import { mockUsers } from '../mocks';
+import { Button, Input } from '../components/design/Editorial';
 import { login } from '../services/api';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const roleQuickLogins = [
+    { label: 'ASHA Worker', role: 'PCW (ASHA)', name: 'Sunita Devi', username: 'sunita_devi' },
+    { label: 'Doctor', role: 'DOCTOR', name: 'Dr. Sharma', username: 'dr_sharma' },
+    { label: 'Admin', role: 'ADMIN', name: 'Admin User', username: 'admin' },
+    { label: 'Patient', role: 'PATIENT', name: 'Priya Patel', username: 'priya_patel' },
+  ];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -22,14 +25,13 @@ export default function Login() {
     }
   };
 
-  const handleRoleLogin = async (roleMock) => {
+  const handleRoleLogin = async (mock) => {
     try {
-      await login(roleMock.email || roleMock.id.toLowerCase(), 'password123');
+      await login(mock.username, 'password123');
       navigate('/home');
-    } catch (err) {
-      // fallback to mock if api fails
-      localStorage.setItem('userRole', roleMock.role);
-      localStorage.setItem('userName', roleMock.name);
+    } catch {
+      localStorage.setItem('userRole', mock.role);
+      localStorage.setItem('userName', mock.name);
       navigate('/home');
     }
   };
@@ -81,10 +83,9 @@ export default function Login() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="secondary" onClick={() => handleRoleLogin(mockUsers[2])}>ASHA Worker</Button>
-            <Button variant="secondary" onClick={() => handleRoleLogin(mockUsers[1])}>Doctor</Button>
-            <Button variant="secondary" onClick={() => handleRoleLogin(mockUsers[0])}>Admin</Button>
-            <Button variant="secondary" onClick={() => handleRoleLogin(mockUsers[3])}>Patient</Button>
+            {roleQuickLogins.map(r => (
+              <Button key={r.role} variant="secondary" onClick={() => handleRoleLogin(r)}>{r.label}</Button>
+            ))}
           </div>
 
           <div className="text-center mt-12">
