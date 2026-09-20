@@ -2,23 +2,35 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { AlertTriangle, BarChart3, ClipboardList, Users, Clock, CheckCircle2, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import DashboardLayout, { NavItem } from '../components/DashboardLayout';
-import { fetchAlerts, fetchDashboard, alertAction } from '../services/api';
+import { fetchAlerts, fetchDashboard, alertAction, fetchCases, reviewCase } from '../services/api';
 import { wsAlertsUrl } from '../services/api';
 
 export default function DoctorDashboard({ onLogout }) {
   const [analytics, setAnalytics] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [cases, setCases] = useState([]);
   const [error, setError] = useState('');
   const [expandedAlert, setExpandedAlert] = useState(null);
+  const [expandedCase, setExpandedCase] = useState(null);
 
   const load = () => {
     fetchDashboard().then(setAnalytics).catch((e) => setError(e.message));
     fetchAlerts().then(setAlerts).catch(() => { });
+    fetchCases().then(data => setCases(data.cases || [])).catch(() => { });
   };
 
-  const handleAlertAction = async (alertId, action) => {
+  const handleAlertAction = async (alertId, action, extra = {}) => {
     try {
-      await alertAction(alertId, { action });
+      await alertAction(alertId, { action, ...extra });
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const handleReviewAction = async (caseId, status, payload = {}) => {
+    try {
+      await reviewCase(caseId, { status, ...payload });
       load();
     } catch (e) {
       setError(e.message);
@@ -101,10 +113,10 @@ export default function DoctorDashboard({ onLogout }) {
               <div key={a.id}>
                 <div
                   className={`rounded-lg border-l-4 p-5 transition cursor-pointer ${a.status === 'open'
-                      ? 'border-l-medical-red bg-medical-red/5 border border-medical-red/20'
-                      : a.status === 'accepted'
-                        ? 'border-l-medical-amber bg-medical-amber/5 border border-medical-amber/20'
-                        : 'border-l-medical-green bg-medical-green/5 border border-medical-green/20'
+                    ? 'border-l-medical-red bg-medical-red/5 border border-medical-red/20'
+                    : a.status === 'accepted'
+                      ? 'border-l-medical-amber bg-medical-amber/5 border border-medical-amber/20'
+                      : 'border-l-medical-green bg-medical-green/5 border border-medical-green/20'
                     }`}
                   onClick={() => setExpandedAlert(expandedAlert === a.id ? null : a.id)}
                 >
@@ -123,8 +135,8 @@ export default function DoctorDashboard({ onLogout }) {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${a.status === 'open' ? 'bg-medical-red/20 text-medical-red' :
-                          a.status === 'accepted' ? 'bg-medical-amber/20 text-medical-amber' :
-                            'bg-medical-green/20 text-medical-green'
+                        a.status === 'accepted' ? 'bg-medical-amber/20 text-medical-amber' :
+                          'bg-medical-green/20 text-medical-green'
                         }`}>
                         {a.status?.toUpperCase()}
                       </span>
@@ -152,8 +164,8 @@ export default function DoctorDashboard({ onLogout }) {
                                   <p className="text-xs text-medical-gray-600 mt-1">Score: {(pred.risk_score * 100).toFixed(1)}%</p>
                                 </div>
                                 <span className={`inline-block px-2 py-1 rounded text-xs font-bold whitespace-nowrap ${pred.risk_level === 'Red' ? 'bg-medical-red/20 text-medical-red' :
-                                    pred.risk_level === 'Yellow' ? 'bg-medical-amber/20 text-medical-amber' :
-                                      'bg-medical-green/20 text-medical-green'
+                                  pred.risk_level === 'Yellow' ? 'bg-medical-amber/20 text-medical-amber' :
+                                    'bg-medical-green/20 text-medical-green'
                                   }`}>
                                   {pred.risk_level}
                                 </span>
@@ -230,6 +242,70 @@ export default function DoctorDashboard({ onLogout }) {
                 <p className="text-sm text-medical-gray-600">No active emergency alerts</p>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Decision Support Cases */}
+        <div className="lg:col-span-2 rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical md:-mt-6">
+          <div className="flex items-center gap-3 mb-6">
+            <ClipboardList className="h-6 w-6 text-medical-blue-dark" />
+            <h2 className="text-xl text-medical-gray-900 font-serif">Assessment Reviews</h2>
+            {cases.filter(c => c.status === 'pending_review').length > 0 && (
+              <span className="ml-auto inline-flex items-center gap-2 px-3 py-1 rounded-full bg-medical-amber/10 text-xs font-semibold text-medical-amber">
+                {cases.filter(c => c.status === 'pending_review').length} Pending
+              </span>
+            )}
+          </div>
+
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {cases.map(c => (
+              <div key={c.client_uuid}>
+                <div
+                  className="rounded-lg border-l-4 border-l-medical-blue-dark bg-medical-blue-light/5 border border-medical-blue-light/20 p-5 cursor-pointer transition"
+                  onClick={() => setExpandedCase(expandedCase === c.client_uuid ? null : c.client_uuid)}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-medical-gray-900">{c.patient_name || 'Patient'}</p>
+                      <p className="mt-1 text-sm text-medical-gray-600">
+                        Age: {c.patient_age}y · Base Risk: <strong className={c.risk_level === 'Red' ? 'text-medical-red' : c.risk_level === 'Amber' ? 'text-medical-amber' : 'text-medical-green'}>{c.risk_level}</strong>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block px-3 py-1 rounded-full bg-medical-gray-200 text-xs font-semibold uppercase">{c.status.replace('_', ' ')}</span>
+                      {expandedCase === c.client_uuid ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </div>
+                  </div>
+                </div>
+
+                {expandedCase === c.client_uuid && (
+                  <div className="mt-2 rounded-lg bg-medical-soft-white border border-medical-gray-300 p-4 space-y-4 text-sm">
+                    {c.engine_output?.topConditions && c.engine_output.topConditions.length > 0 && (
+                      <div>
+                        <span className="font-bold">AI Suspected:</span> {c.engine_output.topConditions.join(', ')}
+                      </div>
+                    )}
+                    <div>
+                      <span className="font-bold">Symptoms: </span> {c.inputs?.symptoms?.join(', ') || 'None'}
+                    </div>
+
+                    {c.status === 'pending_review' && (
+                      <div className="pt-3 border-t border-medical-gray-300 space-y-2">
+                        <textarea
+                          placeholder="Doctor Notes / Final Diagnosis"
+                          className="w-full rounded border p-2"
+                          id={`cx-${c.client_uuid}`}
+                        />
+                        <div className="flex gap-2">
+                          <button onClick={() => handleReviewAction(c.client_uuid, 'validated', { doctor_notes: document.getElementById(`cx-${c.client_uuid}`).value })} className="px-3 py-2 bg-medical-green text-white rounded">Validate</button>
+                          <button onClick={() => handleReviewAction(c.client_uuid, 'referred', { doctor_notes: document.getElementById(`cx-${c.client_uuid}`).value })} className="px-3 py-2 bg-medical-amber text-white rounded">Refer Patient</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 

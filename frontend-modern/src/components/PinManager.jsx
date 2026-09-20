@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { deriveKey, setSessionKey, sessionCryptoKey } from '../services/syncService'; // wait, setSessionKey is there
+import { setSessionKey, sessionCryptoKey } from '../services/syncService';
 import { deriveKey as deriveCryptoKey } from '../utils/crypto';
 
 export default function PinManager({ onUnlocked }) {

@@ -176,4 +176,14 @@ export function wsAlertsUrl() {
   return `${proto}://${window.location.hostname}:8001/ws/alerts?token=${encodeURIComponent(token)}`;
 }
 
+export async function fetchCases() {
+  const { data } = await api.get('/cases');
+  return data;
+}
+
+export async function reviewCase(id, payload) {
+  const { data } = await api.post(`/cases/${id}/review`, payload);
+  return data;
+}
+
 export default api;
