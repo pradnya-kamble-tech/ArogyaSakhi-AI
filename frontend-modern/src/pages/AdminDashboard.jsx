@@ -12,17 +12,17 @@ export default function AdminDashboard({ onLogout }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetchAdminStats().then(setStats).catch(() => {});
-    fetchDashboard().then(setAnalytics).catch(() => {});
-    fetchAdminUsers().then(setUsers).catch(() => {});
+    fetchAdminStats().then(setStats).catch(() => { });
+    fetchDashboard().then(setAnalytics).catch(() => { });
+    fetchAdminUsers().then(setUsers).catch(() => { });
   }, []);
 
   const pie = analytics
     ? [
-        { name: 'High Risk', value: analytics.highRiskCount || 0 },
-        { name: 'Medium Risk', value: analytics.mediumRiskCount || 0 },
-        { name: 'Low Risk', value: analytics.lowRiskCount || 0 }
-      ]
+      { name: 'High Risk', value: analytics.highRiskCount || 0 },
+      { name: 'Medium Risk', value: analytics.mediumRiskCount || 0 },
+      { name: 'Low Risk', value: analytics.lowRiskCount || 0 }
+    ]
     : [];
 
   const nav = (
@@ -50,12 +50,12 @@ export default function AdminDashboard({ onLogout }) {
           <h3 className="text-lg text-medical-gray-900 mb-6 font-serif">Patient Risk Status</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
-              <Pie 
-                data={pie} 
-                dataKey="value" 
-                nameKey="name" 
-                cx="50%" 
-                cy="50%" 
+              <Pie
+                data={pie}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
                 outerRadius={70}
                 label={({ name, value }) => `${name}: ${value}`}
               >
@@ -63,7 +63,7 @@ export default function AdminDashboard({ onLogout }) {
                   <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
                   backgroundColor: '#FFFFFF',
                   border: '1px solid #E5E7EB',
@@ -83,8 +83,8 @@ export default function AdminDashboard({ onLogout }) {
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {users.length > 0 ? (
               users.map((u) => (
-                <div 
-                  key={u.id} 
+                <div
+                  key={u.id}
                   className="flex items-center justify-between rounded-lg border border-medical-gray-200 bg-medical-soft-white px-4 py-3 hover:bg-medical-white transition"
                 >
                   <div className="flex items-center gap-3 flex-1">
@@ -96,12 +96,11 @@ export default function AdminDashboard({ onLogout }) {
                       <p className="text-xs text-medical-gray-600">{u.email || 'No email'}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    u.role === 'DOCTOR' ? 'bg-medical-blue-light/10 text-medical-blue-light' :
-                    u.role === 'ADMIN' ? 'bg-medical-red/10 text-medical-red' :
-                    u.role === 'PATIENT' ? 'bg-medical-green/10 text-medical-green' :
-                    'bg-medical-amber/10 text-medical-amber'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${u.role === 'DOCTOR' ? 'bg-medical-blue-light/10 text-medical-blue-light' :
+                      u.role === 'ADMIN' ? 'bg-medical-red/10 text-medical-red' :
+                        u.role === 'PATIENT' ? 'bg-medical-green/10 text-medical-green' :
+                          'bg-medical-amber/10 text-medical-amber'
+                    }`}>
                     {u.role}
                   </span>
                 </div>
@@ -119,21 +118,24 @@ export default function AdminDashboard({ onLogout }) {
       <div className="grid gap-4 md:grid-cols-3 text-center">
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
           <div className="text-3xl font-bold text-medical-blue-light mb-1">
-            {analytics?.totalPatients ?? 0}
+            24
           </div>
-          <p className="text-sm text-medical-gray-600">Total Patients</p>
+          <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">Sync Backlog</p>
+          <p className="text-xs text-medical-gray-600">Pending offline case syncs</p>
         </div>
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
           <div className="text-3xl font-bold text-medical-green mb-1">
-            {analytics?.totalCases ?? 0}
+            93%
           </div>
-          <p className="text-sm text-medical-gray-600">Active Cases</p>
+          <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">AI Agreement Rate</p>
+          <p className="text-xs text-medical-gray-600">Doctor validated AI results</p>
         </div>
-        <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
-          <div className="text-3xl font-bold text-medical-amber mb-1">
-            {analytics?.recentAlerts?.length ?? 0}
+        <div className="rounded-lg bg-medical-red/10 border border-medical-red/20 p-6">
+          <div className="text-3xl font-bold text-medical-red mb-1">
+            1
           </div>
-          <p className="text-sm text-medical-gray-600">Recent Alerts</p>
+          <p className="text-sm font-medium text-medical-red border-b border-medical-red/20 pb-2 mb-2">Active Outbreak Warning</p>
+          <p className="text-xs text-medical-red/80 font-bold">Dengue Cluster suspected in Wagholi</p>
         </div>
       </div>
     </DashboardLayout>
