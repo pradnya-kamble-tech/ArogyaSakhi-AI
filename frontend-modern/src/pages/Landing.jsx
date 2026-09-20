@@ -1,15 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/design/Editorial';
-import { useTranslation } from 'react-i18next';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const [lang, setLang] = useState('en');
 
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
+  const changeLanguage = (lng) => setLang(lng);
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-between selection:bg-[#C5D4C2] selection:text-[#2D5A3D]">
@@ -18,11 +15,11 @@ export default function Landing() {
           ArogyaSakhi.<span className="text-[#C4704B]">*</span>
         </div>
         <div className="flex gap-2">
-          {['en', 'hi', 'mr'].map(lang => (
+          {['en', 'hi', 'mr'].map(l => (
             <button
-              key={lang}
-              onClick={() => changeLanguage(lang)}
-              className={`uppercase text-xs font-semibold px-2 py-1 rounded transition-colors ${i18n.language === lang ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B] hover:bg-[#DDD7CD]'}`}
+              key={l}
+              onClick={() => changeLanguage(l)}
+              className={`uppercase text-xs font-semibold px-2 py-1 rounded transition-colors ${lang === l ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B] hover:bg-[#DDD7CD]'}`}
             >
               {lang}
             </button>

@@ -1,19 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 export default function AppLayout({ children, user }) {
-    const { t, i18n } = useTranslation();
+    const [activeLang, setActiveLang] = useState('en');
 
-    const changeLanguage = (lng) => {
-        i18n.changeLanguage(lng);
-    };
+    const changeLanguage = (lng) => setActiveLang(lng);
 
     const navItems = [
-        { label: t('Dashboard'), path: '/dashboard', icon: '⊞' },
-        { label: t('Community'), path: '/community', icon: '👥' },
-        { label: t('Maternal'), path: '/maternal', icon: '🤰' },
-        { label: t('Emergency'), path: '/emergency-sos', icon: '🚨' },
+        { label: 'Dashboard', path: '/dashboard', icon: '⊞' },
+        { label: 'Community', path: '/community', icon: '👥' },
+        { label: 'Maternal', path: '/maternal', icon: '🤰' },
+        { label: 'Emergency', path: '/emergency-sos', icon: '🚨' },
     ];
 
     return (
@@ -41,7 +38,7 @@ export default function AppLayout({ children, user }) {
                             to="/settings"
                             className={({ isActive }) => `text-left font-sans text-sm tracking-wide transition-all mt-4 translate-x-0 ${isActive ? 'text-[#2C2C2C] font-semibold translate-x-2' : 'text-[#6B6B6B] hover:text-[#C4704B]'}`}
                         >
-                            {t('Settings')}
+                            Settings
                         </NavLink>
                     </nav>
                 </div>
@@ -52,7 +49,7 @@ export default function AppLayout({ children, user }) {
                             <button
                                 key={lang}
                                 onClick={() => changeLanguage(lang)}
-                                className={`uppercase px-2 py-1 rounded transition-colors ${i18n.language === lang ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B] hover:bg-[#DDD7CD]'}`}
+                                className={`uppercase px-2 py-1 rounded transition-colors ${activeLang === lang ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B] hover:bg-[#DDD7CD]'}`}
                             >
                                 {lang === 'hi' ? 'HI' : lang === 'mr' ? 'MR' : 'EN'}
                             </button>
@@ -84,7 +81,7 @@ export default function AppLayout({ children, user }) {
                                     <button
                                         key={lang}
                                         onClick={() => changeLanguage(lang)}
-                                        className={`uppercase px-1.5 py-0.5 rounded transition-colors ${i18n.language === lang ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B]'}`}
+                                        className={`uppercase px-1.5 py-0.5 rounded transition-colors ${activeLang === lang ? 'bg-[#2C2C2C] text-[#FAF8F5]' : 'bg-[#F2EDE6] text-[#6B6B6B]'}`}
                                     >
                                         {lang}
                                     </button>

@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
-import {
-    mockPatients,
-    mockDashboardStats,
-    mockTimeline,
-    mockAIPrediction,
-    mockUsers
-} from '../mocks';
+const mockDashboardStats = { totalPatients: 248, highRisk: 12, pregnantWomen: 37, pendingAlerts: 4 };
+const mockTimeline = [
+    { date: 'Sep 18', event: 'Community screening', detail: '14 new registrations in Wardha district.' },
+    { date: 'Sep 15', event: 'Maternal care camp', detail: '7 pregnant women referred for specialist consult.' },
+    { date: 'Sep 10', event: 'SOS alert resolved', detail: 'Eclampsia case stabilised and transferred.' },
+];
+const mockAIPrediction = {
+    risk_level: 'Yellow',
+    probable_condition: 'Seasonal Respiratory Cluster',
+    recommendations: 'Increase screening frequency in the north zone. Distribute ORS sachets. Advise mask-wearing in communal spaces.'
+};
+const mockPatients = [
+    { id: '1', name: 'Sunita Bai', age: 28, weeks: 32, village: 'Wardha', condition: 'Mild anaemia', blood_pressure: '110/70', risk_level: 'Yellow' },
+    { id: '2', name: 'Rekha Devi', age: 24, weeks: null, village: 'Hingoli', condition: 'Fever, cough', blood_pressure: '118/76', risk_level: 'Green' },
+    { id: '3', name: 'Priya Meshram', age: 32, weeks: 36, village: 'Amravati', condition: 'High BP', blood_pressure: '145/95', risk_level: 'Red' },
+    { id: '4', name: 'Lata Kharat', age: 19, weeks: 20, village: 'Yavatmal', condition: 'Nausea, weakness', blood_pressure: '105/65', risk_level: 'Green' },
+];
 import {
     Button,
     Input,
