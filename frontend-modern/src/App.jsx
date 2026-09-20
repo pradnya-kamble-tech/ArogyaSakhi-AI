@@ -8,6 +8,7 @@ import DoctorDashboard from './pages/DoctorDashboard';
 import AshaDashboard from './pages/AshaDashboard';
 // No patient portal
 import AdminDashboard from './pages/AdminDashboard';
+import AssessmentWizard from './pages/AssessmentWizard';
 import SymptomChecker from './pages/SymptomChecker';
 import EmergencySOS from './pages/EmergencySOS';
 import HospitalFinder from './pages/HospitalFinder';
@@ -51,6 +52,7 @@ function App() {
         <Route path="/home" element={<Navigate to={homeByRole()} replace />} />
 
         <Route path="/worker" element={<ProtectedRoute allowedRoles={['PCW']}><AshaDashboard onLogout={handleLogout} /></ProtectedRoute>} />
+        <Route path="/worker/assess" element={<ProtectedRoute allowedRoles={['PCW']}><AssessmentWizard onLogout={handleLogout} /></ProtectedRoute>} />
         <Route path="/doctor" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDashboard onLogout={handleLogout} /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard onLogout={handleLogout} /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute allowedRoles={allRoles}><Dashboard /></ProtectedRoute>} />

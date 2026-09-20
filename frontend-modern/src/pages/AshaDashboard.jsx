@@ -73,10 +73,10 @@ export default function AshaDashboard({ onLogout }) {
 
   const nav = (
     <>
-      <NavItem to="/asha" end icon={Activity} label="Dashboard" />
+      <NavItem to="/worker" end icon={Activity} label="Dashboard" />
+      <NavItem to="/worker/assess" icon={ClipboardList} label="New Assessment" />
       <NavItem to="/symptom-checker" icon={Stethoscope} label="Symptom Checker" />
       <NavItem to="/emergency-sos" icon={AlertTriangle} label="Emergency SOS" />
-      <NavItem to="/voice-assistant" icon={Mic} label="Voice Assistant" />
       <NavItem to="/hospital-finder" icon={MapPin} label="Hospital Finder" />
     </>
   );
@@ -278,6 +278,13 @@ export default function AshaDashboard({ onLogout }) {
               <h3 className="text-medical-gray-900 mb-4 font-serif">Quick Access</h3>
               <div className="grid gap-2">
                 <Link
+                  to="/worker/assess"
+                  className="flex items-center gap-3 rounded-lg bg-gradient-to-r from-medical-blue-light to-medical-blue-dark px-4 py-3 text-sm font-bold text-white hover:shadow-lg transition"
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  New Assessment
+                </Link>
+                <Link
                   to="/symptom-checker"
                   className="flex items-center gap-3 rounded-lg bg-medical-blue-light/10 border border-medical-blue-light/20 px-4 py-3 text-sm font-medium text-medical-blue-dark hover:bg-medical-blue-light/20 transition"
                 >
@@ -307,7 +314,7 @@ export default function AshaDashboard({ onLogout }) {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </DashboardLayout >
     </>
   );
 }
