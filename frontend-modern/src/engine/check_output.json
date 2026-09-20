@@ -1,0 +1,36 @@
+[
+  {
+    "name": "a",
+    "level": "Green",
+    "label": "low risk",
+    "reasons": [
+      "Vitals pattern matches \"low risk\" in the training data (model confidence 54%)"
+    ]
+  },
+  {
+    "name": "b",
+    "level": "Red",
+    "label": "high risk",
+    "reasons": [
+      "Raised blood pressure 150/100 mmHg (140/90 or above)",
+      "Vitals pattern matches \"high risk\" in the training data (model confidence 90%)"
+    ]
+  },
+  {
+    "name": "c",
+    "level": "Red",
+    "label": "low risk",
+    "reasons": [
+      "Vaginal bleeding reported",
+      "Vitals pattern matches \"low risk\" in the training data (model confidence 54%)"
+    ]
+  },
+  {
+    "name": "d",
+    "level": "Yellow",
+    "label": null,
+    "reasons": [
+      "Not enough measurements to rule out risk (missing: sbp, dbp, bloodSugarMgDl, tempC, hr)"
+    ]
+  }
+]

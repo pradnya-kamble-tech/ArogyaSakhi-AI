@@ -16,7 +16,8 @@ from app.models.prescription import Prescription
 from app.models.appointment import Appointment
 from app.models.ai_prediction import AIPrediction
 from app.models.notification import Notification
-
+from app.models.assessment_case import AssessmentCase
+import uuid
 fake = Faker('en_IN')
 Faker.seed(42)
 random.seed(42)
@@ -203,7 +204,28 @@ def seed_database(reset: bool = False):
                     status="scheduled"
                 )
                 db.add(appt)
+        db.flush()
 
+        # 30 Assessment Cases
+        cases = []
+        for i in range(30):
+            p = random.choice(patients)
+            risk = random.choices(["Green", "Amber", "Red"], weights=[0.6, 0.3, 0.1])[0]
+            case = AssessmentCase(
+                client_uuid=str(uuid.uuid4()),
+                patient_id=p.id,
+                patient_name=p.name,
+                patient_age=str(p.age),
+                worker_id=p.asha_worker_id,
+                doctor_id=p.doctor_id if risk != "Green" else None,
+                risk_level=risk,
+                escalation="Yes" if risk != "Green" else "No",
+                status="pending_review" if risk != "Green" else "validated",
+                inputs={"symptoms": ["Fever"] if risk == "Green" else ["Fever", "Bleeding"]},
+                engine_output={"category": risk, "topConditions": ["Malaria"]}
+            )
+            cases.append(case)
+        db.add_all(cases)
         db.commit()
         
         print("Database seeded with synthetic demo data (1 Admin, 3 Doctors, 5 ASHA, 40 Patients)")

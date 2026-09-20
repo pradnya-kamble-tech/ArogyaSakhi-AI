@@ -7,7 +7,7 @@ from app.core.config import get_settings
 from app.core.database import init_db
 from app.core.security import decode_token
 from app.websocket.manager import manager
-from app.api.v1 import auth, patients, ai, admin, hospitals, analytics, sync
+from app.api.v1 import auth, patients, ai, admin, hospitals, analytics, sync, cases
 
 settings = get_settings()
 
@@ -46,6 +46,7 @@ app.include_router(admin.router)
 app.include_router(hospitals.router)
 app.include_router(analytics.router)
 app.include_router(sync.router)
+app.include_router(cases.router)
 
 if os.path.isdir(settings.UPLOAD_DIR):
     app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")

@@ -1,0 +1,38 @@
+{
+  "dataset": "UCI Maternal Health Risk",
+  "rows_raw": 1012,
+  "rows_unique": 451,
+  "duplicates_removed": 561,
+  "cv5_accuracy_mean": 0.6673,
+  "cv5_accuracy_std": 0.0424,
+  "cv5_macro_f1_mean": 0.609,
+  "holdout_accuracy": 0.7253,
+  "holdout_macro_f1": 0.6367,
+  "holdout_high_risk_recall": 0.913,
+  "confusion_matrix_low_mid_high": [
+    [
+      41,
+      5,
+      1
+    ],
+    [
+      12,
+      4,
+      5
+    ],
+    [
+      0,
+      2,
+      21
+    ]
+  ],
+  "feature_importances": {
+    "age": 0.1143,
+    "sbp": 0.2337,
+    "dbp": 0.1048,
+    "bs": 0.3844,
+    "temp_f": 0.0968,
+    "hr": 0.0661
+  },
+  "note": "Vitals-only model. Danger signs and Hb are handled by rules. Not clinically validated."
+}

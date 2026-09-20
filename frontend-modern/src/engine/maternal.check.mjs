@@ -7,13 +7,13 @@ const assessMaternal = createMaternalAssessor(model);
 
 const runCase = (name, input) => {
     const res = assessMaternal(input);
-    console.log(`--- ${name} ---`);
-    console.log(`Level: ${res.level}`);
-    console.log(`ML Label: ${res.ml ? res.ml.label : 'null'}`);
-    console.log(`Reasons: ${res.reasons.map(r => r.text).join('; ')}`);
+    return { name, level: res.level, label: res.ml ? res.ml.label : null, reasons: res.reasons.map(r => r.text) };
 }
 
-runCase('a', { vitals: { age: 26, sbp: 110, dbp: 70, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 } });
-runCase('b', { vitals: { age: 26, sbp: 150, dbp: 100, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 } });
-runCase('c', { vitals: { age: 26, sbp: 110, dbp: 70, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 }, dangerSigns: ["vaginal_bleeding"] });
-runCase('d', { vitals: { age: 26 } });
+const out = [];
+out.push(runCase('a', { vitals: { age: 26, sbp: 110, dbp: 70, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 } }));
+out.push(runCase('b', { vitals: { age: 26, sbp: 150, dbp: 100, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 } }));
+out.push(runCase('c', { vitals: { age: 26, sbp: 110, dbp: 70, bloodSugarMgDl: 90, tempC: 36.8, hr: 78 }, dangerSigns: ["vaginal_bleeding"] }));
+out.push(runCase('d', { vitals: { age: 26 } }));
+
+fs.writeFileSync('check_output.json', JSON.stringify(out, null, 2));

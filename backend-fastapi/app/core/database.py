@@ -329,6 +329,7 @@ def init_db():
         symptom,
         doctor_profile,
         refresh_token,
+        assessment_case,
     )
 
     # Try to create the MySQL database if reachable; otherwise fall back.

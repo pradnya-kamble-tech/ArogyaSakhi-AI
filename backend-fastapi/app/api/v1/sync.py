@@ -78,4 +78,52 @@ def batch_sync(
                 results.append({"temp_id": temp_id, "status": "skipped", "reason": "unknown action"})
         except Exception as e:
             results.append({"temp_id": temp_id, "status": "error", "error": str(e)})
+from app.models.assessment_case import AssessmentCase
+import json
+
+@router.post("/cases")
+def sync_cases(
+    items: list[dict],
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles("PCW", "ASHA_WORKER")),
+):
+    results = []
+    for item in items:
+        # Expected structure matches Dexie payloads: 
+        # { client_uuid, patient_name, patient_age, symptoms, vitals, engine_output }
+        client_uuid = item.get("client_uuid")
+        if not client_uuid:
+            results.append({"client_uuid": None, "status": "error", "error": "Missing client_uuid"})
+            continue
+            
+        try:
+            # Idempotent check
+            existing = db.query(AssessmentCase).filter(AssessmentCase.client_uuid == client_uuid).first()
+            if existing:
+                results.append({"client_uuid": client_uuid, "status": "ignored", "reason": "Already exists"})
+                continue
+            
+            engine_output = item.get("engine_output", {})
+            risk_level = engine_output.get("category", "Unknown")
+            escalation = "Yes" if risk_level in ["Red", "Amber"] else "No"
+            
+            case = AssessmentCase(
+                client_uuid=client_uuid,
+                patient_name=item.get("patient_name"),
+                patient_age=item.get("patient_age"),
+                worker_id=user.id,
+                inputs={"symptoms": item.get("symptoms", []), "vitals": item.get("vitals", {})},
+                engine_output=engine_output,
+                risk_level=risk_level,
+                escalation=escalation,
+                status="pending_review"
+            )
+            db.add(case)
+            db.commit()
+            
+            results.append({"client_uuid": client_uuid, "status": "ok"})
+        except Exception as e:
+            db.rollback()
+            results.append({"client_uuid": client_uuid, "status": "error", "error": str(e)})
+            
     return {"synced": results}
