@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fetchPatients, triggerSOS, symptomCheck, voiceIntent, chatWithPatient } from '../services/api';
 import RiskBadge from '../components/RiskBadge';
+import { AIInsight, Badge } from '../components/design/Editorial';
 
 const LANGUAGE_CODES = { en: 'en-IN', hi: 'hi-IN', mr: 'mr-IN' };
 
@@ -231,7 +232,7 @@ export default function SymptomChecker() {
       } else if (patientsList.length) {
         setSelectedPatient(patientsList[0].id);
       }
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -312,7 +313,8 @@ export default function SymptomChecker() {
     }
 
     const bodyPartMap = {
-      chest: 'chest', head: 'head', stomach: 'stomach', skin: 'skin', legs: 'legs', back: 'spine', pelvic: 'lower_back', neck: 'neck', abdomen: 'stomach', rash: 'skin', cough: 'chest', fever: 'head', vomiting: 'stomach', swelling: 'legs', weakness: 'legs', dizziness: 'head', anxiety: 'head', bleeding: 'pelvic', pregnancy: 'lower_back', 'chest pain': 'chest', 'headache': 'head', 'skin rash': 'skin', 'breathing issue': 'chest' };
+      chest: 'chest', head: 'head', stomach: 'stomach', skin: 'skin', legs: 'legs', back: 'spine', pelvic: 'lower_back', neck: 'neck', abdomen: 'stomach', rash: 'skin', cough: 'chest', fever: 'head', vomiting: 'stomach', swelling: 'legs', weakness: 'legs', dizziness: 'head', anxiety: 'head', bleeding: 'pelvic', pregnancy: 'lower_back', 'chest pain': 'chest', 'headache': 'head', 'skin rash': 'skin', 'breathing issue': 'chest'
+    };
     Object.entries(bodyPartMap).forEach(([keyword, part]) => {
       if (text.toLowerCase().includes(keyword)) selectBodyPart(part);
     });
@@ -440,12 +442,12 @@ export default function SymptomChecker() {
               </div>
               <div className="flex gap-3 md:w-[360px]">
                 <input value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder={t('patientSearching')} className="w-full rounded-lg border border-medical-gray-200 bg-medical-soft-white px-4 py-2 text-sm text-medical-gray-900 outline-none focus:border-medical-blue-light focus:ring-2 focus:ring-medical-blue-light/20" />
-                <button type="button" onClick={() => fetchPatients(patientSearch).then((data) => setPatients(data || [])).catch(() => {})} className="rounded-lg bg-medical-gray-100 px-4 py-2 text-sm font-medium text-medical-gray-700 hover:bg-medical-gray-200 transition">
+                <button type="button" onClick={() => fetchPatients(patientSearch).then((data) => setPatients(data || [])).catch(() => { })} className="rounded-lg bg-medical-gray-100 px-4 py-2 text-sm font-medium text-medical-gray-700 hover:bg-medical-gray-200 transition">
                   Search
                 </button>
               </div>
             </div>
-            
+
             <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
               {/* Patient List */}
               <div className="space-y-3 rounded-lg border border-medical-gray-100 bg-medical-soft-white p-4 max-h-[320px] overflow-y-auto">
@@ -456,7 +458,7 @@ export default function SymptomChecker() {
                   </button>
                 )) : <p className="text-sm text-medical-gray-500 p-2">{t('emptyPatients')}</p>}
               </div>
-              
+
               {/* Selected Patient Overview */}
               <div className="rounded-lg border border-medical-gray-100 bg-white p-6 shadow-sm">
                 {patient ? (
@@ -507,7 +509,7 @@ export default function SymptomChecker() {
                 </select>
               </div>
             </div>
-            
+
             <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
               {/* Body SVG */}
               <div className="rounded-lg border border-medical-gray-100 bg-medical-soft-white p-6 flex justify-center">
@@ -547,7 +549,7 @@ export default function SymptomChecker() {
                   </svg>
                 </div>
               </div>
-              
+
               {/* Selected Body Part Symptoms */}
               <div className="rounded-lg border border-medical-gray-100 bg-white p-5 shadow-sm">
                 <p className="text-xs uppercase tracking-widest font-semibold text-medical-gray-500 mb-4">{bodyLabel(selectedBodyData?.id)} Symptoms</p>
@@ -597,7 +599,7 @@ export default function SymptomChecker() {
                 </span>
               )) : <span className="text-sm text-medical-gray-500 italic">No symptoms selected...</span>}
             </div>
-            
+
             <div className="grid gap-4 sm:grid-cols-3 pt-6 border-t border-medical-gray-100">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-medical-gray-600 mb-2">{t('age')}</label>
@@ -669,41 +671,30 @@ export default function SymptomChecker() {
           </section>
 
           {/* Analysis Results */}
-          <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-medical-gray-900 font-serif">Analysis Results</h3>
-                <p className="text-xs text-medical-gray-500 mt-1">{savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : 'Awaiting review'}</p>
+          <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
+            {!result ? (
+              <div className="text-center py-10 text-medical-gray-500">
+                <p className="text-display-sm text-medical-gray-900">No analysis yet</p>
+                <p className="mt-2 text-sm">Select symptoms and patient parameters, then run AI analysis.</p>
+                <div className="mt-4"><Badge variant="neutral">Pending</Badge></div>
               </div>
-              <RiskBadge level={result?.risk_level || 'Green'} />
-            </div>
-            
-            <div className="grid gap-3 mb-6">
-              <div className="flex items-center justify-between rounded-lg border border-medical-gray-100 bg-medical-soft-white p-3">
-                <span className="text-sm font-medium text-medical-gray-600">{t('emergency')}</span>
-                <span className="text-sm font-bold text-medical-gray-900 capitalize">{result?.emergency_level || 'Low'}</span>
+            ) : (
+              <div className="space-y-6">
+                <AIInsight insight={{
+                  risk_level: result.risk_level,
+                  probable_condition: result.condition || 'Identified Condition',
+                  recommendations: (result.recommendations || []).join('. ') + (result.reasoning ? ` Reasons: ${result.reasoning}` : '')
+                }} />
+
+                {result.risk_level === 'Red' && (
+                  <div className="rounded-lg bg-medical-red/10 border border-medical-red/20 p-4 text-center">
+                    <p className="text-medical-red font-bold text-lg uppercase tracking-wider">Escalated to Doctor</p>
+                    <p className="text-medical-red/80 text-sm mt-1">An alert has been dispatched to the supervising physician.</p>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-medical-gray-100 bg-medical-soft-white p-3">
-                <span className="text-sm font-medium text-medical-gray-600">{t('infection')}</span>
-                <span className="text-sm font-bold text-medical-gray-900 capitalize">{result?.infection_risk || 'Low'}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg border border-medical-gray-100 bg-medical-soft-white p-3">
-                <span className="text-sm font-medium text-medical-gray-600">{t('dehydration')}</span>
-                <span className="text-sm font-bold text-medical-gray-900 capitalize">{result?.dehydration_risk || 'Low'}</span>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-xs uppercase tracking-wider text-medical-gray-500 mb-3 font-serif">{t('recommendations')}</h4>
-              {result?.recommendations ? (
-                <ul className="list-disc pl-5 space-y-2 text-sm text-medical-gray-700">
-                  {result.recommendations.map((item, idx) => <li key={idx}>{item}</li>)}
-                </ul>
-              ) : (
-                <p className="text-sm text-medical-gray-500 italic border-l-2 border-medical-gray-200 pl-3">Run analysis to see AI recommendations</p>
-              )}
-            </div>
-          </section>
+            )}
+          </div>
         </div>
       </div>
 
