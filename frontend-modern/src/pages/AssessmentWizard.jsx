@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 // Engine imports
 import { evaluateBaseRisk } from '../engine/riskEngine';
 import { matchConditions } from '../engine/conditionMatcher';
+import { assessMaternal } from '../engine/maternalMl';
 
 export default function AssessmentWizard({ onLogout }) {
     const [step, setStep] = useState(1);
@@ -17,7 +18,7 @@ export default function AssessmentWizard({ onLogout }) {
     // State for all steps
     const [patient, setPatient] = useState({ id: '', name: '', age: '', sex: '', village: '', isPregnant: false, weeks: '' });
     const [symptoms, setSymptoms] = useState([]);
-    const [vitals, setVitals] = useState({ bp_systolic: '', bp_diastolic: '', heart_rate: '', temperature: '', spo2: '', respiratory_rate: '' });
+    const [vitals, setVitals] = useState({ bp_systolic: '', bp_diastolic: '', heart_rate: '', temperature: '', spo2: '', respiratory_rate: '', blood_sugar: '', hb: '' });
 
     // Results
     const [result, setResult] = useState(null);
@@ -104,6 +105,8 @@ export default function AssessmentWizard({ onLogout }) {
                 <div><label className="text-xs text-medical-gray-600 block mb-1">Temp (F)</label><input type="number" className="w-full p-3 border rounded-lg" value={vitals.temperature} onChange={e => setVitals({ ...vitals, temperature: e.target.value })} /></div>
                 <div><label className="text-xs text-medical-gray-600 block mb-1">SpO2 (%)</label><input type="number" className="w-full p-3 border rounded-lg" value={vitals.spO2} onChange={e => setVitals({ ...vitals, spo2: e.target.value })} /></div>
                 <div><label className="text-xs text-medical-gray-600 block mb-1">Resp Rate</label><input type="number" className="w-full p-3 border rounded-lg" value={vitals.respiratory_rate} onChange={e => setVitals({ ...vitals, respiratory_rate: e.target.value })} /></div>
+                <div><label className="text-xs text-medical-gray-600 block mb-1">Blood Sugar (mg/dL)</label><input type="number" className="w-full p-3 border rounded-lg" value={vitals.blood_sugar} onChange={e => setVitals({ ...vitals, blood_sugar: e.target.value })} /></div>
+                <div><label className="text-xs text-medical-gray-600 block mb-1">Hb (g/dL)</label><input type="number" className="w-full p-3 border rounded-lg" value={vitals.hb} onChange={e => setVitals({ ...vitals, hb: e.target.value })} /></div>
             </div>
 
             <div className="flex justify-between pt-6">
@@ -125,21 +128,57 @@ export default function AssessmentWizard({ onLogout }) {
             respiratory_rate: Number(vitals.respiratory_rate) || null
         };
 
-        // Evaluate Risk Locally
         const risk = evaluateBaseRisk({
             age: Number(patient.age),
             symptoms,
             vitals: v,
             isMaternal: patient.isPregnant
         });
-
         const matches = matchConditions(symptoms, patient.isPregnant);
+        let category = risk.calculatedUrgency === 'critical' ? 'Red' : risk.score > 40 ? 'Amber' : 'Green';
+        let finalTopConditions = matches;
+        let reasons = [...risk.reasons];
 
+        const ML_DATA = {};
+        if (patient.isPregnant) {
+            const m_vitals = {
+                age: Number(patient.age) || null,
+                sbp: v.bp_systolic,
+                dbp: v.bp_diastolic,
+                bloodSugarMgDl: Number(vitals.blood_sugar) || null,
+                tempC: v.temperature ? (v.temperature - 32) * 5 / 9 : null,
+                hr: v.heart_rate
+            };
+            const DANGER_MAP = {
+                'bleeding': 'vaginal_bleeding', 'fever': 'fever', 'headache': 'severe_headache',
+                'swelling': 'swelling_face_hands', 'convulsions': 'convulsions', 'blurred vision': 'blurred_vision',
+                'reduced fetal movement': 'reduced_fetal_movement', 'breathless': 'breathless_at_rest', 'abdominal pain': 'severe_abdominal_pain'
+            };
+            const dangerSigns = symptoms.map(s => DANGER_MAP[s.toLowerCase()] || s).filter(s => Object.values(DANGER_MAP).includes(s));
+
+            const mlRes = assessMaternal({ vitals: m_vitals, dangerSigns, hb: Number(vitals.hb) || null });
+
+            const LEVEL_ORDER = { Green: 0, Yellow: 1, Amber: 1, Red: 2 };
+            const mLevel = mlRes.level === 'Yellow' ? 'Amber' : mlRes.level;
+            category = LEVEL_ORDER[mLevel] > LEVEL_ORDER[category] ? mLevel : category;
+
+            reasons = [...reasons, ...mlRes.reasons.map(r => r.text)];
+            if (mlRes.insufficientData) {
+                reasons.push("Not enough data");
+            }
+            if (mlRes.ml && mlRes.ml.label) {
+                finalTopConditions.push(`AI Suspects: ${mlRes.ml.label} (Conf: ${Math.round(mlRes.ml.confidence * 100)}%)`);
+            }
+            Object.assign(ML_DATA, { ...mlRes });
+        }
+
+        risk.reasons = reasons;
         setResult({
             risk,
             vitals: v,
-            topConditions: matches,
-            category: risk.calculatedUrgency === 'critical' ? 'Red' : risk.score > 40 ? 'Amber' : 'Green'
+            topConditions: finalTopConditions,
+            category,
+            maternalAppdx: patient.isPregnant ? ML_DATA : null
         });
 
         setStep(4);

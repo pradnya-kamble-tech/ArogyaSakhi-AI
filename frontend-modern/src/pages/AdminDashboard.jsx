@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LineChart, Line, XAxis, YAxis } from 'recharts';
 import { Building2, Shield, Users, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react';
 import DashboardLayout, { NavItem } from '../components/DashboardLayout';
-import { fetchAdminStats, fetchAdminUsers, fetchDashboard } from '../services/api';
+import { fetchAdminStats, fetchAdminUsers, fetchDashboard, fetchCases } from '../services/api';
+import { db } from '../db/db';
 
 const COLORS = ['#EF4444', '#F59E0B', '#10B981'];
 
@@ -10,20 +11,36 @@ export default function AdminDashboard({ onLogout }) {
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
+  const [realCases, setRealCases] = useState([]);
+  const [syncBacklog, setSyncBacklog] = useState(0);
 
   useEffect(() => {
     fetchAdminStats().then(setStats).catch(() => { });
     fetchDashboard().then(setAnalytics).catch(() => { });
     fetchAdminUsers().then(setUsers).catch(() => { });
+    fetchCases().then(res => setRealCases(res.cases || [])).catch(() => { });
+
+    // Unsynced count from local queue
+    try {
+      db.syncQueue.count().then(setSyncBacklog).catch(() => { });
+    } catch (e) { }
   }, []);
 
-  const pie = analytics
+  const highRisk = realCases.filter(c => c.risk_level === 'Red').length;
+  const medRisk = realCases.filter(c => c.risk_level === 'Amber').length;
+  const lowRisk = realCases.filter(c => c.risk_level === 'Green').length;
+
+  const pie = realCases.length > 0
     ? [
-      { name: 'High Risk', value: analytics.highRiskCount || 0 },
-      { name: 'Medium Risk', value: analytics.mediumRiskCount || 0 },
-      { name: 'Low Risk', value: analytics.lowRiskCount || 0 }
+      { name: 'High Risk', value: highRisk },
+      { name: 'Medium Risk', value: medRisk },
+      { name: 'Low Risk', value: lowRisk }
     ]
     : [];
+
+  const reviewedCases = realCases.filter(c => c.status === 'validated' || c.status === 'referred');
+  const agreedCases = realCases.filter(c => c.status === 'validated');
+  const agreementRate = reviewedCases.length ? Math.round((agreedCases.length / reviewedCases.length) * 100) : null;
 
   const nav = (
     <>
@@ -97,9 +114,9 @@ export default function AdminDashboard({ onLogout }) {
                     </div>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${u.role === 'DOCTOR' ? 'bg-medical-blue-light/10 text-medical-blue-light' :
-                      u.role === 'ADMIN' ? 'bg-medical-red/10 text-medical-red' :
-                        u.role === 'PATIENT' ? 'bg-medical-green/10 text-medical-green' :
-                          'bg-medical-amber/10 text-medical-amber'
+                    u.role === 'ADMIN' ? 'bg-medical-red/10 text-medical-red' :
+                      u.role === 'PATIENT' ? 'bg-medical-green/10 text-medical-green' :
+                        'bg-medical-amber/10 text-medical-amber'
                     }`}>
                     {u.role}
                   </span>
@@ -118,24 +135,24 @@ export default function AdminDashboard({ onLogout }) {
       <div className="grid gap-4 md:grid-cols-3 text-center">
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
           <div className="text-3xl font-bold text-medical-blue-light mb-1">
-            24
+            {syncBacklog === 0 ? '0' : syncBacklog}
           </div>
           <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">Sync Backlog</p>
           <p className="text-xs text-medical-gray-600">Pending offline case syncs</p>
         </div>
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
           <div className="text-3xl font-bold text-medical-green mb-1">
-            93%
+            {agreementRate === null ? 'No data yet' : `${agreementRate}%`}
           </div>
           <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">AI Agreement Rate</p>
           <p className="text-xs text-medical-gray-600">Doctor validated AI results</p>
         </div>
         <div className="rounded-lg bg-medical-red/10 border border-medical-red/20 p-6">
           <div className="text-3xl font-bold text-medical-red mb-1">
-            1
+            {analytics?.recentAlerts?.length || 'No data yet'}
           </div>
-          <p className="text-sm font-medium text-medical-red border-b border-medical-red/20 pb-2 mb-2">Active Outbreak Warning</p>
-          <p className="text-xs text-medical-red/80 font-bold">Dengue Cluster suspected in Wagholi</p>
+          <p className="text-sm font-medium text-medical-red border-b border-medical-red/20 pb-2 mb-2">Active Outbreak Warnings</p>
+          <p className="text-xs text-medical-red/80 font-bold">Unresolved emergencies or outbreaks</p>
         </div>
       </div>
     </DashboardLayout>
