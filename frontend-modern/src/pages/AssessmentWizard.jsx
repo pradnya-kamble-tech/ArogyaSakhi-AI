@@ -208,11 +208,12 @@ export default function AssessmentWizard({ onLogout }) {
                     </div>
                 </div>
 
-                <div className="flex gap-4 pt-6">
+                <div className="flex gap-4 pt-6 flex-wrap">
                     <button onClick={saveCase} className="flex-1 px-4 py-3 bg-medical-blue-light text-white rounded-lg font-bold">Save Case</button>
+                    <button onClick={() => navigate('/worker/report', { state: { patient, symptoms, vitals, result } })} className="flex-1 px-4 py-3 bg-medical-gray-900 text-white rounded-lg font-bold">Generate Report</button>
 
                     {(result.category === 'Red' || result.category === 'Amber') && (
-                        <button className="flex-1 px-4 py-3 bg-medical-red text-white rounded-lg font-bold">Refer Now</button>
+                        <button onClick={() => navigate('/worker/refer', { state: { patient, symptoms, result } })} className="flex-1 px-4 py-3 bg-medical-red text-white rounded-lg font-bold">Refer Now</button>
                     )}
                 </div>
             </div>
