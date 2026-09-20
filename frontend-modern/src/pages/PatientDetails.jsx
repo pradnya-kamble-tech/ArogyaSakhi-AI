@@ -1,19 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import RiskBadge from '../components/RiskBadge';
 import { User, Phone, MapPin, Activity, Calendar, ArrowLeft } from 'lucide-react';
+import { Button, EditorialTimeline } from '../components/design/Editorial';
 
 export default function PatientDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
+  const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/patients/${id}`)
-       .then((r) => setPatient(r.data))
-       .catch(() => {})
-       .finally(() => setLoading(false));
+    Promise.all([
+      api.get(`/patients/${id}`),
+      api.get(`/patients/${id}/visits`)
+    ])
+      .then(([patientRes, visitsRes]) => {
+        setPatient(patientRes.data);
+        setVisits(visitsRes.data);
+      })
+      .catch(() => { })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
@@ -33,13 +42,19 @@ export default function PatientDetails() {
     );
   }
 
+  const timelineItems = visits.map(v => ({
+    date: new Date(v.created_at).toLocaleDateString(),
+    event: 'Visit',
+    detail: v.notes || 'Routine checkup. ' + (v.symptoms?.[0] ? `Symptom: ${v.symptoms[0]}` : '')
+  }));
+
   return (
     <div className="max-w-4xl space-y-6">
       <Link to={-1} className="inline-flex items-center gap-2 text-sm font-medium text-medical-gray-600 hover:text-medical-blue-dark">
         <ArrowLeft className="h-4 w-4" />
         Back
       </Link>
-      
+
       <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 md:p-8 shadow-medical">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-medical-gray-100 pb-6 mb-6">
           <div className="flex items-center gap-5">
@@ -51,8 +66,11 @@ export default function PatientDetails() {
               <p className="text-medical-gray-500 font-medium mt-1">ID: {patient.health_id || patient.id}</p>
             </div>
           </div>
-          <div>
+          <div className="flex items-center gap-4">
             <RiskBadge level={patient.risk_level} />
+            <Button onClick={() => navigate('/symptom-checker', { state: { patientId: patient.id } })}>
+              Run symptom check
+            </Button>
           </div>
         </div>
 
@@ -65,7 +83,7 @@ export default function PatientDetails() {
             </div>
             <p className="text-lg font-bold text-medical-gray-900">{patient.age || '—'} yrs, {patient.gender || '—'}</p>
           </div>
-          
+
           <div className="rounded-lg border border-medical-gray-100 bg-medical-soft-white p-4">
             <div className="flex items-center gap-2 text-medical-gray-500 mb-2">
               <Phone className="h-4 w-4" />
@@ -91,6 +109,15 @@ export default function PatientDetails() {
               {patient.is_pregnant ? 'Yes' : 'No'}
             </p>
           </div>
+        </div>
+
+        <h3 className="text-sm uppercase tracking-wider text-medical-gray-500 mb-4 font-serif">Visit Timeline</h3>
+        <div className="mb-8">
+          {visits.length > 0 ? (
+            <EditorialTimeline items={timelineItems} />
+          ) : (
+            <span className="text-sm text-medical-gray-500 italic">No previous visits recorded.</span>
+          )}
         </div>
 
         <h3 className="text-sm uppercase tracking-wider text-medical-gray-500 mb-4 font-serif">Medical Tags</h3>
