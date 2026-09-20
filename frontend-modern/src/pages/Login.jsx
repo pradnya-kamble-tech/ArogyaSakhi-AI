@@ -6,10 +6,9 @@ import { login } from '../services/api';
 export default function Login() {
   const navigate = useNavigate();
   const roleQuickLogins = [
-    { label: 'ASHA Worker', role: 'PCW (ASHA)', name: 'Sunita Devi', username: 'sunita_devi' },
-    { label: 'Doctor', role: 'DOCTOR', name: 'Dr. Sharma', username: 'dr_sharma' },
-    { label: 'Admin', role: 'ADMIN', name: 'Admin User', username: 'admin' },
-    { label: 'Patient', role: 'PATIENT', name: 'Priya Patel', username: 'priya_patel' },
+    { label: 'Health Worker', role: 'PCW', name: 'Worker User', username: 'pcw1' },
+    { label: 'Doctor', role: 'DOCTOR', name: 'Dr. Smith', username: 'doctor1' },
+    { label: 'Admin', role: 'ADMIN', name: 'Admin User', username: 'admin' }
   ];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

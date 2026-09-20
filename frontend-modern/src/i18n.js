@@ -1,39 +1,51 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Minimal translation resources for the App Shell display.
+// Simple translations for EN, HI, MR
 const resources = {
     en: {
         translation: {
             "Dashboard": "Dashboard",
-            "Community": "Community Health",
-            "Maternal": "Maternal Care",
-            "Emergency": "Emergency SOS",
-            "Settings": "Settings",
-            "Dr. Priya Iyer": "Dr. Priya Iyer",
-            "Primary Health": "Primary Health"
+            "Patients": "Patients",
+            "Assessments": "Assessments",
+            "New Assessment": "New Assessment",
+            "Sync": "Sync",
+            "Profile": "Profile",
+            "Risk Levels": {
+                "Green": "Green",
+                "Yellow": "Yellow",
+                "Red": "Red"
+            }
         }
     },
     hi: {
         translation: {
             "Dashboard": "डैशबोर्ड",
-            "Community": "सामुदायिक स्वास्थ्य",
-            "Maternal": "मातृत्व देखभाल",
-            "Emergency": "आपातकालीन",
-            "Settings": "सेटिंग्स",
-            "Dr. Priya Iyer": "डॉ. प्रिया अय्यर",
-            "Primary Health": "प्राथमिक स्वास्थ्य"
+            "Patients": "मरीज़",
+            "Assessments": "मूल्यांकन",
+            "New Assessment": "नया मूल्यांकन",
+            "Sync": "सिंक करें",
+            "Profile": "प्रोफ़ाइल",
+            "Risk Levels": {
+                "Green": "हरा",
+                "Yellow": "पीला",
+                "Red": "लाल"
+            }
         }
     },
     mr: {
         translation: {
             "Dashboard": "डॅशबोर्ड",
-            "Community": "सामुदायिक आरोग्य",
-            "Maternal": "मातृत्व काळजी",
-            "Emergency": "आपत्कालीन",
-            "Settings": "सेटिंग्ज",
-            "Dr. Priya Iyer": "डॉ. प्रिया अय्यर",
-            "Primary Health": "प्राथमिक आरोग्य"
+            "Patients": "रुग्ण",
+            "Assessments": "मूल्यांकन",
+            "New Assessment": "नवीन मूल्यांकन",
+            "Sync": "सिंक",
+            "Profile": "प्रोफाइल",
+            "Risk Levels": {
+                "Green": "हिरवा",
+                "Yellow": "पिवळा",
+                "Red": "लाल"
+            }
         }
     }
 };
@@ -42,10 +54,10 @@ i18n
     .use(initReactI18next)
     .init({
         resources,
-        lng: 'en', // default language
+        lng: localStorage.getItem('appLang') || 'en',
         fallbackLng: 'en',
         interpolation: {
-            escapeValue: false // react already safes from xss
+            escapeValue: false
         }
     });
 
