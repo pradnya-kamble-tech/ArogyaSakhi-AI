@@ -91,19 +91,20 @@ export const AIInsight = ({ insight }) => (
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#A3B8A0] rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 translate-y-1/2"></div>
 
         <div className="relative z-10 flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <span className="text-label text-[#A3B8A0]">Arogya Intelligence</span>
-                <Badge variant={insight.risk_level === 'Yellow' ? 'yellow' : 'red'} className="bg-[#FAF8F5] mix-blend-screen text-current">
-                    Risk: {insight.risk_level}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <span className="text-label text-[#C5D4C2] font-semibold tracking-widest">AROGYA INTELLIGENCE</span>
+                <Badge variant={insight.risk_level === 'Yellow' ? 'yellow' : 'red'} className="bg-[#FAF8F5] text-[#2C2C2C] border border-[#FAF8F5] mix-blend-screen text-current">
+                    Decision Support
                 </Badge>
             </div>
 
             <div>
                 <h3 className="text-display-md mb-2">{insight.probable_condition}</h3>
                 <p className="text-body text-[#C5D4C2] opacity-90 max-w-2xl">{insight.recommendations}</p>
+                <p className="text-body-xs text-[#A3B8A0] mt-4 italic font-medium tracking-wide">Decision support, not a diagnosis.</p>
             </div>
 
-            <div className="pt-4 border-t border-[#3A7350] flex gap-4">
+            <div className="pt-4 border-t border-[#3A7350] flex gap-4 mt-2">
                 <Button variant="secondary" className="!bg-[#FAF8F5] !text-[#2D5A3D]">Accept Protocol</Button>
                 <Button variant="outline" className="!border-[#A3B8A0] !text-[#FAF8F5] hover:!bg-[#A3B8A0] hover:!text-[#2D5A3D]">Consult Specialist</Button>
             </div>

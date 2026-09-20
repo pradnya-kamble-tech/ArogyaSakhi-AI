@@ -3,8 +3,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['"Instrument Serif"', '"Noto Serif Devanagari"', 'Georgia', 'serif'],
+        sans: ['Inter', '"Noto Sans Devanagari"', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
         // Editorial palette
