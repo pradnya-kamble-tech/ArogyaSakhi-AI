@@ -19,7 +19,7 @@ export default function Dashboard() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm font-medium text-white/80">PLATFORM OVERVIEW</p>
-              <h1 className="mt-3 text-4xl font-bold">AI Health Command Center</h1>
+              <h1 className="mt-3 text-4xl font-serif">AI Health Command Center</h1>
             </div>
             <div className="rounded-lg bg-white/20 px-5 py-3 text-sm font-medium backdrop-blur-sm">
               Status: <span className="text-medical-green">● Connected</span>
@@ -64,7 +64,7 @@ export default function Dashboard() {
           <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="mb-6 flex items-center gap-3">
               <BarChart3 className="h-6 w-6 text-medical-blue-light" />
-              <h2 className="text-xl font-bold text-medical-gray-900">Risk Distribution</h2>
+              <h2 className="text-xl text-medical-gray-900 font-serif">Risk Distribution</h2>
             </div>
             <div className="space-y-4">
               <div className="rounded-lg bg-medical-red/10 p-4 border-l-4 border-medical-red">
@@ -85,7 +85,7 @@ export default function Dashboard() {
           <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="mb-6 flex items-center gap-3">
               <AlertCircle className="h-6 w-6 text-medical-red" />
-              <h2 className="text-xl font-bold text-medical-gray-900">Recent Alerts</h2>
+              <h2 className="text-xl text-medical-gray-900 font-serif">Recent Alerts</h2>
             </div>
             <div className="space-y-3">
               {(analytics?.recentAlerts || []).slice(0, 3).map((alert, idx) => (

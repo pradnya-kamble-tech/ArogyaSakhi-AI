@@ -21,7 +21,7 @@ export default function AIReports() {
             <FileText className="h-6 w-6 text-medical-blue-light" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-medical-gray-900">AI & Emergency Reports</h2>
+            <h2 className="text-2xl text-medical-gray-900 font-serif">AI & Emergency Reports</h2>
             <p className="mt-1 text-sm text-medical-gray-600">Historical log of all system alerts and AI predictions.</p>
           </div>
         </div>

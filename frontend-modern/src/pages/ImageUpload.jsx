@@ -83,7 +83,7 @@ export default function ImageUpload({ onLogout }) {
             className="rounded-lg border-2 border-dashed border-medical-blue-light bg-medical-blue-light/5 p-12 text-center"
           >
             <Upload className="h-16 w-16 text-medical-blue-light mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-medical-gray-900 mb-2">Upload Medical Image</h2>
+            <h2 className="text-2xl text-medical-gray-900 mb-2 font-serif">Upload Medical Image</h2>
             <p className="text-medical-gray-600 mb-8">Upload a skin, wound, or other medical image for AI analysis</p>
 
             {error && (
@@ -145,7 +145,7 @@ export default function ImageUpload({ onLogout }) {
           >
             {/* Condition Card */}
             <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
-              <h3 className="text-xl font-bold text-medical-gray-900 mb-6">AI Analysis Result</h3>
+              <h3 className="text-xl text-medical-gray-900 mb-6 font-serif">AI Analysis Result</h3>
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {/* Condition */}
@@ -202,7 +202,7 @@ export default function ImageUpload({ onLogout }) {
 
             {/* Details Card */}
             <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
-              <h4 className="text-lg font-bold text-medical-gray-900 mb-6">Detailed Analysis</h4>
+              <h4 className="text-lg text-medical-gray-900 mb-6 font-serif">Detailed Analysis</h4>
 
               <div className="space-y-4">
                 {result.description && (

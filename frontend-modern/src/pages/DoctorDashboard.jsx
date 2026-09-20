@@ -87,7 +87,7 @@ export default function DoctorDashboard({ onLogout }) {
         <div className="lg:col-span-2 rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
           <div className="flex items-center gap-3 mb-6">
             <AlertTriangle className="h-6 w-6 text-medical-red" />
-            <h2 className="text-xl font-bold text-medical-gray-900">Live Emergency Alerts</h2>
+            <h2 className="text-xl text-medical-gray-900 font-serif">Live Emergency Alerts</h2>
             {alerts.some(a => a.status === 'open') && (
               <span className="ml-auto inline-flex items-center gap-2 px-3 py-1 rounded-full bg-medical-red/10 text-xs font-semibold text-medical-red">
                 <span className="h-2 w-2 animated bg-medical-red rounded-full" />
@@ -219,7 +219,7 @@ export default function DoctorDashboard({ onLogout }) {
         <div className="space-y-6">
           {/* Risk Distribution Chart */}
           <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
-            <h3 className="text-lg font-bold text-medical-gray-900 mb-4">Risk Distribution</h3>
+            <h3 className="text-lg text-medical-gray-900 mb-4 font-serif">Risk Distribution</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={chartData}>
                 <XAxis dataKey="name" stroke="#6B7280" style={{ fontSize: '11px' }} />

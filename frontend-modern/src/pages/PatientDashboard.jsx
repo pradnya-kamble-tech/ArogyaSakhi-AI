@@ -91,7 +91,7 @@ export default function PatientDashboard({ onLogout }) {
                 {patient.name?.charAt(0).toUpperCase() || 'P'}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-medical-gray-900">{patient.name}</h2>
+                <h2 className="text-2xl text-medical-gray-900 font-serif">{patient.name}</h2>
                 <p className="text-sm text-medical-gray-600">Patient ID: {patient.health_id}</p>
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function PatientDashboard({ onLogout }) {
 
         {/* Recommendations Section */}
         <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
-          <h3 className="mb-6 text-xl font-bold text-medical-gray-900">Health Recommendations</h3>
+          <h3 className="mb-6 text-xl text-medical-gray-900 font-serif">Health Recommendations</h3>
           <div className="space-y-4">
             {(analytics?.recommendations || []).length > 0 ? (
               analytics.recommendations.map((r, i) => (

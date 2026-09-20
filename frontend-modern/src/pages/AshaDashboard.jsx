@@ -174,7 +174,7 @@ export default function AshaDashboard({ onLogout }) {
           className="lg:col-span-2 rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical"
         >
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-medical-gray-900 mb-4">Patient Registry</h2>
+            <h2 className="text-xl text-medical-gray-900 mb-4 font-serif">Patient Registry</h2>
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-medical-gray-400" />
@@ -230,7 +230,7 @@ export default function AshaDashboard({ onLogout }) {
         <div className="space-y-6">
           {/* Registration Form */}
           <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
-            <h3 className="flex items-center gap-2 font-bold text-medical-gray-900 mb-4">
+            <h3 className="flex items-center gap-2 text-medical-gray-900 mb-4 font-serif">
               <Plus className="h-5 w-5 text-medical-blue-light" />
               New Patient
             </h3>
@@ -272,7 +272,7 @@ export default function AshaDashboard({ onLogout }) {
 
           {/* Quick Actions */}
           <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
-            <h3 className="font-bold text-medical-gray-900 mb-4">Quick Access</h3>
+            <h3 className="text-medical-gray-900 mb-4 font-serif">Quick Access</h3>
             <div className="grid gap-2">
               <Link 
                 to="/symptom-checker" 

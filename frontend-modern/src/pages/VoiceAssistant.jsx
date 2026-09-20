@@ -63,7 +63,7 @@ export default function VoiceAssistant() {
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-medical-blue-light/10 mb-4">
             <Mic className="h-10 w-10 text-medical-blue-light" />
           </div>
-          <h2 className="text-3xl font-bold text-medical-gray-900">Voice Assistant</h2>
+          <h2 className="text-3xl text-medical-gray-900 font-serif">Voice Assistant</h2>
           <p className="mt-2 text-medical-gray-600">Multilingual voice navigation and emergency activation.</p>
         </div>
 

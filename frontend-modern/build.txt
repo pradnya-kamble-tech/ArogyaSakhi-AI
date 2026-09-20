@@ -1,0 +1,15 @@
+
+> arogyasakhi-ai@3.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 19 modules transformed.
+[31mx[39m Build failed in 1.12s
+[31merror during build:
+[31mCould not resolve "./pages/Signup" from "src/App.jsx"[31m
+file: [36mC:/ArogyaSakhi-AI-main/frontend-modern/src/App.jsx[31m
+    at getRollupError (file:///C:/ArogyaSakhi-AI-main/frontend-modern/node_modules/rollup/dist/es/shared/parseAst.js:406:41)
+    at error (file:///C:/ArogyaSakhi-AI-main/frontend-modern/node_modules/rollup/dist/es/shared/parseAst.js:402:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///C:/ArogyaSakhi-AI-main/frontend-modern/node_modules/rollup/dist/es/shared/node-entry.js:22127:24)
+    at file:///C:/ArogyaSakhi-AI-main/frontend-modern/node_modules/rollup/dist/es/shared/node-entry.js:22087:26[39m

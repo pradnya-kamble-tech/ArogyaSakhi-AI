@@ -18,8 +18,8 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Navigate to="/login" replace />;
   }
 
-  const normalized = role === 'ASHA_WORKER' ? 'PCW' : role;
-  const allowed = allowedRoles.map((r) => (r === 'ASHA_WORKER' ? 'PCW' : r));
+  const normalized = role === 'PCW (ASHA)' ? 'PCW (ASHA)' : role;
+  const allowed = allowedRoles.map((r) => (r === 'PCW (ASHA)' ? 'PCW (ASHA)' : r));
 
   if (allowed.length > 0 && !allowed.includes(normalized) && !allowed.includes(role)) {
     return <Navigate to="/login" replace />;

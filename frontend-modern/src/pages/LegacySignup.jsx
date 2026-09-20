@@ -29,7 +29,7 @@ export default function Signup() {
 
   const roleOptions = [
     { value: 'PATIENT', label: 'Patient', description: 'Access health records & AI diagnosis' },
-    { value: 'ASHA_WORKER', label: 'ASHA Worker', description: 'Patient care & registration' },
+    { value: 'PCW (ASHA)', label: 'ASHA Worker', description: 'Patient care & registration' },
     { value: 'DOCTOR', label: 'Doctor', description: 'Manage cases & consultations' }
   ];
 
@@ -43,14 +43,14 @@ export default function Signup() {
               🏥
             </div>
             <div>
-              <h1 className="text-2xl font-bold">ArogyaSakhi AI</h1>
+              <h1 className="text-2xl font-serif">ArogyaSakhi AI</h1>
               <p className="text-sm text-white/80">Rural Healthcare Platform</p>
             </div>
           </div>
         </div>
 
         <div>
-          <h2 className="mb-4 text-4xl font-bold leading-tight">Join the Healthcare Revolution</h2>
+          <h2 className="mb-4 text-4xl leading-tight font-serif">Join the Healthcare Revolution</h2>
           <p className="mb-8 text-lg text-white/90">Be part of a community transforming rural healthcare with AI and modern technology.</p>
           <div className="space-y-4">
             <div className="flex gap-3">
@@ -82,7 +82,7 @@ export default function Signup() {
       <div className="flex w-full flex-col items-center justify-center px-4 py-12 lg:w-1/2">
         <div className="w-full max-w-md">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-medical-gray-900">Create account</h1>
+            <h1 className="text-3xl text-medical-gray-900 font-serif">Create account</h1>
             <p className="mt-2 text-sm text-medical-gray-600">Join ArogyaSakhi AI and start your healthcare journey</p>
           </div>
 

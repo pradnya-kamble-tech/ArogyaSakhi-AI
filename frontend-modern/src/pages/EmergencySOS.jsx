@@ -54,7 +54,7 @@ export default function EmergencySOS() {
         <AlertCircle className="h-12 w-12 text-medical-red" />
       </div>
       <p className="text-sm font-bold uppercase tracking-[0.2em] text-medical-red">Emergency Response</p>
-      <h2 className="mt-4 text-4xl font-bold text-medical-gray-900">One-tap SOS</h2>
+      <h2 className="mt-4 text-4xl text-medical-gray-900 font-serif">One-tap SOS</h2>
       <p className="mx-auto mt-4 max-w-md text-medical-gray-600 leading-relaxed">
         Instantly notifies doctors, administrators, and provides routing to the nearest equipped hospital.
       </p>

@@ -21,7 +21,7 @@ export default function AIAnalytics() {
       <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 md:p-8 shadow-medical">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-medical-gray-900">System Analytics</h2>
+            <h2 className="text-2xl text-medical-gray-900 font-serif">System Analytics</h2>
             <p className="mt-1 text-sm text-medical-gray-600">AI prediction distribution and engine status</p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-medical-green/20 bg-medical-green/10 px-4 py-2">

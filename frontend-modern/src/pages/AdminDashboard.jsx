@@ -47,7 +47,7 @@ export default function AdminDashboard({ onLogout }) {
       <div className="grid gap-6 lg:grid-cols-3 mb-8">
         {/* Risk Distribution Chart */}
         <div className="lg:col-span-1 rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
-          <h3 className="text-lg font-bold text-medical-gray-900 mb-6">Patient Risk Status</h3>
+          <h3 className="text-lg text-medical-gray-900 mb-6 font-serif">Patient Risk Status</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie 
@@ -77,7 +77,7 @@ export default function AdminDashboard({ onLogout }) {
         {/* User Management */}
         <div className="lg:col-span-2 rounded-lg border border-medical-gray-200 bg-medical-white p-8 shadow-medical">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-medical-gray-900">Active Users</h3>
+            <h3 className="text-lg text-medical-gray-900 font-serif">Active Users</h3>
             <span className="text-sm font-medium text-medical-blue-light">{users.length} members</span>
           </div>
           <div className="space-y-2 max-h-80 overflow-y-auto">

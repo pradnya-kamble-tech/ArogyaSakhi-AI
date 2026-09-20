@@ -413,7 +413,7 @@ export default function SymptomChecker() {
       <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-bold text-medical-gray-900 tracking-tight">{t('title')}</h2>
+            <h2 className="text-3xl text-medical-gray-900 tracking-tight font-serif">{t('title')}</h2>
             <p className="mt-2 text-medical-gray-600">{t('subtitle')}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -435,7 +435,7 @@ export default function SymptomChecker() {
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-medical-gray-900">{t('patientDetails')}</h3>
+                <h3 className="text-xl text-medical-gray-900 font-serif">{t('patientDetails')}</h3>
                 <p className="mt-1 text-sm text-medical-gray-500">{t('patientSearching')}</p>
               </div>
               <div className="flex gap-3 md:w-[360px]">
@@ -492,7 +492,7 @@ export default function SymptomChecker() {
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-medical-gray-900">{t('bodyParts')}</h3>
+                <h3 className="text-xl text-medical-gray-900 font-serif">{t('bodyParts')}</h3>
                 <p className="mt-1 text-sm text-medical-gray-500">{t('anatomyGender')} · {t('bodyView')}</p>
               </div>
               <div className="flex gap-3">
@@ -566,7 +566,7 @@ export default function SymptomChecker() {
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
               <div>
-                <h3 className="text-xl font-bold text-medical-gray-900">{t('searchSymptom')}</h3>
+                <h3 className="text-xl text-medical-gray-900 font-serif">{t('searchSymptom')}</h3>
                 <p className="mt-1 text-sm text-medical-gray-500">{t('filterCategory')}</p>
               </div>
               <div className="flex gap-3 md:w-[420px]">
@@ -626,7 +626,7 @@ export default function SymptomChecker() {
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="flex items-center justify-between gap-3 mb-4">
               <div>
-                <h3 className="font-bold text-medical-gray-900">{t('voiceAssistant')}</h3>
+                <h3 className="text-medical-gray-900 font-serif">{t('voiceAssistant')}</h3>
                 <p className="text-xs text-medical-gray-500 mt-1">{t('voiceHint')}</p>
               </div>
               <button type="button" onClick={startVoice} className={`rounded-lg px-4 py-2 text-sm font-semibold transition shadow-sm ${listening ? 'bg-medical-red text-white animate-pulse' : 'bg-medical-gray-100 text-medical-gray-700 hover:bg-medical-gray-200'}`}>
@@ -649,7 +649,7 @@ export default function SymptomChecker() {
           {/* Chat Assistant */}
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="mb-4">
-              <h3 className="font-bold text-medical-gray-900">{t('chatAssistant')}</h3>
+              <h3 className="text-medical-gray-900 font-serif">{t('chatAssistant')}</h3>
               <p className="text-xs text-medical-gray-500 mt-1">{t('chatHint')}</p>
             </div>
             <div className="mb-4 space-y-3 rounded-lg border border-medical-gray-100 bg-medical-soft-white p-4 max-h-[250px] overflow-y-auto">
@@ -672,7 +672,7 @@ export default function SymptomChecker() {
           <section className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="font-bold text-medical-gray-900">Analysis Results</h3>
+                <h3 className="text-medical-gray-900 font-serif">Analysis Results</h3>
                 <p className="text-xs text-medical-gray-500 mt-1">{savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : 'Awaiting review'}</p>
               </div>
               <RiskBadge level={result?.risk_level || 'Green'} />
@@ -694,7 +694,7 @@ export default function SymptomChecker() {
             </div>
             
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-medical-gray-500 mb-3">{t('recommendations')}</h4>
+              <h4 className="text-xs uppercase tracking-wider text-medical-gray-500 mb-3 font-serif">{t('recommendations')}</h4>
               {result?.recommendations ? (
                 <ul className="list-disc pl-5 space-y-2 text-sm text-medical-gray-700">
                   {result.recommendations.map((item, idx) => <li key={idx}>{item}</li>)}

@@ -26,7 +26,7 @@ export default function HospitalFinder() {
     <div className="space-y-6 max-w-5xl">
       <div className="rounded-lg border border-medical-gray-200 bg-medical-white p-6 shadow-medical">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-medical-gray-900">Hospital Finder</h1>
+          <h1 className="text-2xl text-medical-gray-900 font-serif">Hospital Finder</h1>
           <p className="mt-1 text-sm text-medical-gray-600">Locate nearby equipped healthcare facilities.</p>
         </div>
         
@@ -61,7 +61,7 @@ export default function HospitalFinder() {
               </div>
             )}
             <div className={`pt-${h.recommend_ambulance ? '4' : '0'}`}>
-              <h3 className="font-bold text-lg text-medical-gray-900 leading-tight">{h.name}</h3>
+              <h3 className="text-lg text-medical-gray-900 leading-tight font-serif">{h.name}</h3>
               
               <div className="mt-4 space-y-2">
                 <div className="flex items-start gap-2 text-medical-gray-600 text-sm">

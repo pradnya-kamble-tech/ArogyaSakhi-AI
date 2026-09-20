@@ -47,7 +47,7 @@ export default function PatientDetails() {
               {patient.name?.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-medical-gray-900">{patient.name}</h1>
+              <h1 className="text-3xl text-medical-gray-900 font-serif">{patient.name}</h1>
               <p className="text-medical-gray-500 font-medium mt-1">ID: {patient.health_id || patient.id}</p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function PatientDetails() {
           </div>
         </div>
 
-        <h3 className="text-sm font-bold uppercase tracking-wider text-medical-gray-500 mb-4">Demographics & Contact</h3>
+        <h3 className="text-sm uppercase tracking-wider text-medical-gray-500 mb-4 font-serif">Demographics & Contact</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
           <div className="rounded-lg border border-medical-gray-100 bg-medical-soft-white p-4">
             <div className="flex items-center gap-2 text-medical-gray-500 mb-2">
@@ -93,7 +93,7 @@ export default function PatientDetails() {
           </div>
         </div>
 
-        <h3 className="text-sm font-bold uppercase tracking-wider text-medical-gray-500 mb-4">Medical Tags</h3>
+        <h3 className="text-sm uppercase tracking-wider text-medical-gray-500 mb-4 font-serif">Medical Tags</h3>
         <div className="flex flex-wrap gap-2">
           {patient.medical_history && patient.medical_history.length > 0 ? (
             patient.medical_history.map((tag, idx) => (

@@ -98,7 +98,7 @@ export default function DashboardLayout({ title, subtitle, nav, children, onLogo
             {/* Title - Hidden on Small Screens */}
             <div className="hidden sm:block">
               <p className="text-xs uppercase tracking-widest text-medical-gray-500 font-semibold">{subtitle}</p>
-              <h1 className="mt-1 text-2xl font-bold text-medical-gray-900">{title}</h1>
+              <h1 className="mt-1 text-2xl text-medical-gray-900 font-serif">{title}</h1>
             </div>
 
             {/* Right Icons */}
