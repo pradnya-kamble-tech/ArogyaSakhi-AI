@@ -22,12 +22,66 @@ export default function CaseReport() {
     const { patient, symptoms, vitals, result } = data;
     const now = new Date();
 
+    const exportJSON = () => {
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        const exportFileDefaultName = `case_report_${patient?.name?.replace(/\s+/g, '_') || 'unknown'}_${Date.now()}.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        document.body.appendChild(linkElement);
+        linkElement.click();
+        document.body.removeChild(linkElement);
+    };
+
+    const exportCSV = () => {
+        const rows = [
+            ['Field', 'Value'],
+            ['Patient Name', patient?.name || ''],
+            ['Age', patient?.age || ''],
+            ['Sex', patient?.sex || ''],
+            ['Village', patient?.village || ''],
+            ['Pregnant', patient?.isPregnant ? `Yes (${patient?.weeks || '?'} weeks)` : 'No'],
+            ['Symptoms', (symptoms || []).join('; ')],
+            ['Risk Level', result?.category || ''],
+            ['Risk Score', result?.risk?.score || ''],
+            ['BP Systolic', vitals?.bp_systolic || ''],
+            ['BP Diastolic', vitals?.bp_diastolic || ''],
+            ['Heart Rate', vitals?.heart_rate || ''],
+            ['Temperature (F)', vitals?.temperature || ''],
+            ['SpO2 (%)', vitals?.spo2 || ''],
+            ['Respiratory Rate', vitals?.respiratory_rate || ''],
+            ['Blood Sugar (mg/dL)', vitals?.blood_sugar || ''],
+            ['Hb (g/dL)', vitals?.hb || ''],
+            ['Clinical Drivers', (result?.risk?.reasons || []).join('; ')],
+            ['Recommended Actions', (result?.risk?.treatments || []).map(t => t.replace('treatment.', '')).join('; ')],
+            ['Report Generated', new Date().toISOString()],
+            ['Worker', localStorage.getItem('userName') || ''],
+        ];
+        const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `case_report_${patient?.name?.replace(/\s+/g, '_') || 'unknown'}_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="min-h-screen bg-medical-white">
             {/* Print-hidden toolbar */}
             <div className="print:hidden bg-medical-soft-white border-b border-medical-gray-200 px-6 py-3 flex justify-between items-center">
                 <button onClick={() => navigate(-1)} className="text-sm text-medical-blue-dark font-medium">← Back</button>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
+                    <button onClick={exportJSON} className="px-4 py-2 bg-medical-gray-200 text-medical-gray-900 rounded-lg text-sm font-bold">
+                        Export JSON
+                    </button>
+                    <button onClick={exportCSV} className="px-4 py-2 bg-medical-gray-200 text-medical-gray-900 rounded-lg text-sm font-bold">
+                        Export CSV
+                    </button>
                     <button onClick={() => window.print()} className="px-4 py-2 bg-medical-blue-light text-white rounded-lg text-sm font-bold">
                         🖨️ Print Report
                     </button>
@@ -85,8 +139,8 @@ export default function CaseReport() {
                 <section className="mb-6">
                     <h2 className="text-lg font-serif font-bold text-medical-gray-900 mb-3 uppercase tracking-wider border-b border-medical-gray-200 pb-1">AI Assessment (Local Engine)</h2>
                     <div className={`p-4 rounded-lg border-2 mb-4 ${result?.category === 'Red' ? 'border-medical-red bg-medical-red/5' :
-                            result?.category === 'Amber' ? 'border-medical-amber bg-medical-amber/5' :
-                                'border-medical-green bg-medical-green/5'
+                        result?.category === 'Amber' ? 'border-medical-amber bg-medical-amber/5' :
+                            'border-medical-green bg-medical-green/5'
                         }`}>
                         <p className="font-bold text-lg">{result?.category || 'Unknown'} Risk Level</p>
                         <p className="text-xs opacity-70 mt-1">Score: {result?.risk?.score}/100 | Confidence: {result?.risk?.confidence}%</p>

@@ -1,27 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import FeatureShell from '../components/FeatureShell';
 import { db } from '../db/db';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
 
-// Engine imports
 import { evaluateBaseRisk } from '../engine/riskEngine';
 import { matchConditions } from '../engine/conditionMatcher';
 import { assessMaternal } from '../engine/maternalMl';
+import { aiClinicalSummary } from '../services/api';
 
 export default function AssessmentWizard({ onLogout }) {
     const [step, setStep] = useState(1);
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useTranslation();
 
     // State for all steps
     const [patient, setPatient] = useState({ id: '', name: '', age: '', sex: '', village: '', isPregnant: false, weeks: '' });
-    const [symptoms, setSymptoms] = useState([]);
+    const [symptoms, setSymptoms] = useState(location.state?.voiceSymptoms || []);
+    const [voiceDuration] = useState(location.state?.voiceDuration || '');
+    const [voiceSeverity] = useState(location.state?.voiceSeverity || '');
     const [vitals, setVitals] = useState({ bp_systolic: '', bp_diastolic: '', heart_rate: '', temperature: '', spo2: '', respiratory_rate: '', blood_sugar: '', hb: '' });
 
     // Results
     const [result, setResult] = useState(null);
+    const [aiSummary, setAiSummary] = useState(null);   // null=not loaded, false=unavailable
+    const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
 
     // -- Step 1: Patient --
     const renderStep1 = () => (
@@ -56,6 +61,18 @@ export default function AssessmentWizard({ onLogout }) {
     const renderStep2 = () => (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <h2 className="text-2xl font-serif text-medical-gray-900">2. Symptoms</h2>
+            {(voiceDuration || voiceSeverity) && (
+                <div className="flex items-start gap-3 rounded-lg bg-medical-blue-light/10 border border-medical-blue-light/20 px-4 py-3 text-sm text-medical-blue-dark">
+                    <span className="text-base">🎤</span>
+                    <span>
+                        Voice captured:
+                        {voiceDuration && <strong> Duration — {voiceDuration}</strong>}
+                        {voiceDuration && voiceSeverity && ' · '}
+                        {voiceSeverity && <strong> Severity — {voiceSeverity}</strong>}
+                        . Review symptoms below before proceeding.
+                    </span>
+                </div>
+            )}
             <div className="flex gap-2 mb-4">
                 <input
                     type="text"
@@ -182,6 +199,23 @@ export default function AssessmentWizard({ onLogout }) {
         });
 
         setStep(4);
+
+        // Fire AI clinical summary in background — does NOT block or override deterministic result
+        const casePayload = {
+            patient: { name: patient.name, age: patient.age, sex: patient.sex, isPregnant: patient.isPregnant, weeks: patient.weeks },
+            symptoms,
+            vitals: v,
+            risk_level: category,
+            risk_score: risk.score,
+            clinical_drivers: reasons,
+            top_conditions: finalTopConditions,
+        };
+        setAiSummaryLoading(true);
+        setAiSummary(null);
+        aiClinicalSummary({ case_data: casePayload })
+            .then((res) => setAiSummary(res.clinical_summary || null))
+            .catch(() => setAiSummary(false))   // false = unavailable, not null
+            .finally(() => setAiSummaryLoading(false));
     };
 
     const saveCase = async () => {
@@ -247,9 +281,51 @@ export default function AssessmentWizard({ onLogout }) {
                     </div>
                 </div>
 
+                {/* AI Clinical Summary — fires in background, does NOT override risk level */}
+                <div className="border-t border-medical-gray-200 pt-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-medical-gray-500 mb-2">AI Clinical Summary</p>
+                    {aiSummaryLoading && (
+                        <div className="flex items-center gap-2 text-sm text-medical-gray-500 py-2">
+                            <div className="h-4 w-4 border-2 border-medical-blue-light border-r-transparent rounded-full animate-spin" />
+                            Generating AI summary…
+                        </div>
+                    )}
+                    {aiSummary === false && (
+                        <p className="text-xs text-medical-gray-400 italic py-2">
+                            AI summary unavailable (set AI_API_KEY in backend to enable).
+                        </p>
+                    )}
+                    {aiSummary && typeof aiSummary === 'object' && !aiSummary.error && (
+                        <div className="rounded-lg bg-medical-soft-white border border-medical-blue-light/20 p-4 space-y-2 text-sm">
+                            <p className="text-xs bg-medical-amber/10 text-medical-amber px-2 py-0.5 rounded-full inline-block font-medium mb-1">
+                                Decision support only — not a diagnosis
+                            </p>
+                            {aiSummary.summary && <p><strong>Summary:</strong> {aiSummary.summary}</p>}
+                            {aiSummary.important_findings?.length > 0 && (
+                                <div>
+                                    <strong>Important findings:</strong>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs">
+                                        {aiSummary.important_findings.map((f, i) => <li key={i}>{f}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                            {aiSummary.missing_information?.length > 0 && (
+                                <div>
+                                    <strong>Missing information:</strong>
+                                    <ul className="list-disc pl-5 mt-1 space-y-1 text-xs text-medical-amber">
+                                        {aiSummary.missing_information.map((f, i) => <li key={i}>{f}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                            {aiSummary.uncertainty_note && (
+                                <p className="text-xs text-medical-gray-500 italic">{aiSummary.uncertainty_note}</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex gap-4 pt-6 flex-wrap">
-                    <button onClick={saveCase} className="flex-1 px-4 py-3 bg-medical-blue-light text-white rounded-lg font-bold">Save Case</button>
-                    <button onClick={() => navigate('/worker/report', { state: { patient, symptoms, vitals, result } })} className="flex-1 px-4 py-3 bg-medical-gray-900 text-white rounded-lg font-bold">Generate Report</button>
+                    <button onClick={saveCase} className="flex-1 px-4 py-3 bg-medical-blue-light text-white rounded-lg font-bold">Save Case</button>                    <button onClick={() => navigate('/worker/report', { state: { patient, symptoms, vitals, result } })} className="flex-1 px-4 py-3 bg-medical-gray-900 text-white rounded-lg font-bold">Generate Report</button>
 
                     {(result.category === 'Red' || result.category === 'Amber') && (
                         <button onClick={() => navigate('/worker/refer', { state: { patient, symptoms, result } })} className="flex-1 px-4 py-3 bg-medical-red text-white rounded-lg font-bold">Refer Now</button>

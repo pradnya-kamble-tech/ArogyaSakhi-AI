@@ -6,23 +6,39 @@ import {
 } from 'lucide-react';
 import DashboardLayout, { NavItem } from '../components/DashboardLayout';
 import RiskBadge from '../components/RiskBadge';
-import { PatientCard } from '../components/design/Editorial';
-import { createPatient, fetchPatients, skinDetect } from '../services/api';
+import { createPatient, fetchCases, skinDetect } from '../services/api';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
 import { wsAlertsUrl } from '../services/api';
 import PinManager from '../components/PinManager';
+import { db } from '../db/db';
 
 export default function AshaDashboard({ onLogout }) {
   const userName = localStorage.getItem('userName');
-  const [patients, setPatients] = useState([]);
+  const [cases, setCases] = useState([]);
   const [search, setSearch] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [credentials, setCredentials] = useState(null);
   const [form, setForm] = useState({ name: '', age: '', phone: '', village: '' });
-  const { online, queue, syncing, enqueue } = useOfflineQueue();
+  const { online, queue, syncing, syncError, enqueue } = useOfflineQueue();
 
-  const load = () => fetchPatients(search).then(setPatients).catch((e) => setError(e.message));
+  const load = () => {
+    if (navigator.onLine) {
+      fetchCases().then(res => {
+        let filtered = res.cases || [];
+        if (search) {
+          filtered = filtered.filter(c => c.patient_name?.toLowerCase().includes(search.toLowerCase()));
+        }
+        setCases(filtered);
+      }).catch((e) => setError(e.message));
+    } else {
+      db.cases.toArray().then(items => {
+        let parsed = items.map(i => JSON.parse(i.payload));
+        if (search) parsed = parsed.filter(c => c.patient_name?.toLowerCase().includes(search.toLowerCase()));
+        setCases(parsed);
+      }).catch((e) => setError(e.message));
+    }
+  };
 
   useEffect(() => { load(); }, []);
 
@@ -94,6 +110,11 @@ export default function AshaDashboard({ onLogout }) {
           {queue.length > 0 && (
             <span className="text-xs text-medical-gray-600 bg-medical-soft-white px-3 py-1 rounded-full">
               {queue.length} pending {syncing && '(syncing...)'}
+            </span>
+          )}
+          {syncError && (
+            <span className="text-xs bg-medical-red/10 text-medical-red border border-medical-red/20 px-3 py-1 rounded-full">
+              Sync error: {syncError}
             </span>
           )}
         </div>
@@ -200,30 +221,49 @@ export default function AshaDashboard({ onLogout }) {
             </div>
 
             <div className="space-y-3 max-h-[420px] overflow-y-auto">
-              {patients.length > 0 ? (
-                <div className="flex flex-col">
-                  {patients.map((p, index) => (
-                    <Link key={p.id} to={`/patient/${p.id}`} className="block">
-                      <PatientCard
-                        index={index + 1}
-                        patient={{
-                          name: p.name,
-                          age: p.age,
-                          weeks: p.weeks,
-                          village: p.village || 'Unknown',
-                          condition: p.condition || p.top_symptom || p.symptoms?.[0] || 'No symptoms',
-                          blood_pressure: p.blood_pressure || '120/80',
-                          risk_level: p.risk_level || (p.health_score < 70 ? 'Red' : p.health_score < 90 ? 'Yellow' : 'Green')
-                        }}
-                      />
-                    </Link>
-                  ))}
+              {cases.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {cases.map((c, index) => {
+                    const target = c.patient_id ? `/patient/${c.patient_id}` : null;
+                    const riskColor =
+                      c.risk_level === 'Red' ? 'border-l-medical-red bg-medical-red/5' :
+                      (c.risk_level === 'Amber' || c.risk_level === 'Yellow') ? 'border-l-medical-amber bg-medical-amber/5' :
+                      'border-l-medical-green bg-medical-green/5';
+                    const card = (
+                      <div className={`rounded-lg border border-medical-gray-100 border-l-4 ${riskColor} p-4 flex items-start justify-between gap-3 hover:shadow-sm transition`}>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-medical-gray-900 truncate">{c.patient_name || 'Unknown Patient'}</p>
+                          <p className="text-xs text-medical-gray-500 mt-0.5">Age: {c.patient_age || '—'}</p>
+                          <p className="text-xs text-medical-gray-500 truncate mt-0.5">
+                            {c.inputs?.symptoms?.join(', ') || 'No symptoms recorded'}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                            c.risk_level === 'Red' ? 'bg-medical-red/20 text-medical-red' :
+                            (c.risk_level === 'Amber' || c.risk_level === 'Yellow') ? 'bg-medical-amber/20 text-medical-amber' :
+                            'bg-medical-green/20 text-medical-green'
+                          }`}>{c.risk_level || 'Green'}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            c.status === 'pending_review' ? 'bg-medical-amber/10 text-medical-amber' :
+                            c.status === 'pending' ? 'bg-gray-100 text-gray-500' :
+                            'bg-medical-green/10 text-medical-green'
+                          }`}>{c.status?.replace('_', ' ') || 'pending'}</span>
+                        </div>
+                      </div>
+                    );
+                    return target ? (
+                      <Link key={c.client_uuid || index} to={target}>{card}</Link>
+                    ) : (
+                      <div key={c.client_uuid || index}>{card}</div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6 text-center">
                   <Users className="h-12 w-12 text-medical-gray-300 mx-auto mb-3" />
-                  <p className="text-medical-gray-900 font-medium">No patients yet</p>
-                  <p className="text-xs text-medical-gray-600">Register your first patient using the form on the right</p>
+                  <p className="text-medical-gray-900 font-medium">No recent cases</p>
+                  <p className="text-xs text-medical-gray-600">Register a patient to start an assessment</p>
                 </div>
               )}
             </div>

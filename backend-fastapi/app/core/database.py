@@ -204,6 +204,9 @@ def migrate_schema():
     uploaded_image_cols = {
         "patient_id": "patient_id VARCHAR(64) NULL",
         "uploader_id": "uploader_id VARCHAR(64) NULL",
+        "case_id": "case_id VARCHAR(64) NULL",
+        "original_filename": "original_filename VARCHAR(256) NULL",
+        "file_size_bytes": "file_size_bytes INT NULL",
     }
     if "uploaded_images" in tables:
         for col, ddl in uploaded_image_cols.items():
@@ -330,6 +333,8 @@ def init_db():
         doctor_profile,
         refresh_token,
         assessment_case,
+        specialist_consultation,
+        patient_observation,
     )
 
     # Try to create the MySQL database if reachable; otherwise fall back.
@@ -371,4 +376,43 @@ def init_db():
             migrate_schema()
     except OperationalError:
         # If migration fails (e.g., sqlite or MySQL not available), ignore.
-        return
+        pass
+
+    # ── Cross-DB safe column additions (SQLite + MySQL) ───────────────────────
+    # These use SQLite-compatible syntax (no backticks, no MySQL-specific DDL).
+    _safe_add_columns_cross_db()
+
+
+def _safe_add_columns_cross_db():
+    """Add missing columns using dialect-agnostic ALTER TABLE syntax.
+    Works for both SQLite and MySQL. Silently skips if column already exists.
+    """
+    insp = inspect(engine)
+    existing_tables = insp.get_table_names()
+
+    def _add(table: str, col: str, ddl: str):
+        if table not in existing_tables:
+            return
+        cols = {c["name"] for c in insp.get_columns(table)}
+        if col not in cols:
+            try:
+                with engine.begin() as conn:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}"))
+            except Exception:
+                pass  # already exists in a concurrent startup, or unsupported
+
+    # assessment_cases v2 columns
+    _add("assessment_cases", "priority",   "VARCHAR(16) DEFAULT 'NORMAL'")
+    _add("assessment_cases", "updated_at", "DATETIME")
+
+    # uploaded_images v2 columns
+    _add("uploaded_images", "case_id",           "VARCHAR(64)")
+    _add("uploaded_images", "original_filename",  "VARCHAR(256)")
+    _add("uploaded_images", "file_size_bytes",    "INTEGER")
+
+    # specialist_consultations columns that may be missing on older DBs
+    _add("specialist_consultations", "specialist_id",               "VARCHAR(64)")
+    _add("specialist_consultations", "specialist_response",          "TEXT")
+    _add("specialist_consultations", "specialist_review_timestamp",  "DATETIME")
+    _add("specialist_consultations", "updated_at",                   "DATETIME")
+    _add("specialist_consultations", "handover_note",                "TEXT")

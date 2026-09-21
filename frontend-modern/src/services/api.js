@@ -186,4 +186,62 @@ export async function reviewCase(id, payload) {
   return data;
 }
 
+export async function requestConsultation(caseId, payload) {
+  const { data } = await api.post(`/cases/${caseId}/consultations`, payload);
+  return data;
+}
+
+export async function fetchConsultationQueue() {
+  const { data } = await api.get('/cases/consultations/queue');
+  return data;
+}
+
+export async function reviewConsultation(id, payload) {
+  const { data } = await api.post(`/cases/consultations/${id}/review`, payload);
+  return data;
+}
+
+export async function aiExplain(payload) {
+  const { data } = await api.post('/ai/explain', payload);
+  return data;
+}
+
+export async function aiHandover(payload) {
+  const { data } = await api.post('/ai/handover-note', payload);
+  return data;
+}
+
+export async function aiDifferential(payload) {
+  const { data } = await api.post('/ai/differential', payload);
+  return data;
+}
+
+export async function aiVoiceExtract(payload) {
+  const { data } = await api.post('/ai/voice-extract', payload);
+  return data;
+}
+
+export async function aiClinicalSummary(payload) {
+  const { data } = await api.post('/ai/clinical-summary', payload);
+  return data;
+}
+
+export async function fetchCaseTrends(caseId) {
+  const { data } = await api.get(`/cases/${caseId}/trends`);
+  return data;
+}
+
+export async function uploadCaseImage(caseId, file) {
+  const form = new FormData();
+  form.append('file', file);
+  if (caseId) form.append('case_id', caseId);
+  const { data } = await api.post('/ai/case-image-upload', form);
+  return data;
+}
+
+export async function fetchCaseById(caseId) {
+  const { data } = await api.get(`/cases/${caseId}`);
+  return data;
+}
+
 export default api;

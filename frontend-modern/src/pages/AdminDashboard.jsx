@@ -26,8 +26,11 @@ export default function AdminDashboard({ onLogout }) {
     } catch (e) { }
   }, []);
 
+  const pendingReviews = realCases.filter(c => c.status === 'pending_review').length;
+  const criticalCases = realCases.filter(c => c.priority === 'CRITICAL').length;
+
   const highRisk = realCases.filter(c => c.risk_level === 'Red').length;
-  const medRisk = realCases.filter(c => c.risk_level === 'Amber').length;
+  const medRisk = realCases.filter(c => c.risk_level === 'Amber' || c.risk_level === 'Yellow').length;
   const lowRisk = realCases.filter(c => c.risk_level === 'Green').length;
 
   const pie = realCases.length > 0
@@ -57,8 +60,7 @@ export default function AdminDashboard({ onLogout }) {
         <Stat label="Total Users" value={stats?.total_users ?? 0} icon={<Users className="h-6 w-6" />} color="from-medical-blue-light to-medical-blue-dark" />
         <Stat label="Total Patients" value={stats?.total_patients ?? 0} icon={<Building2 className="h-6 w-6" />} color="from-medical-green to-green-600" />
         <Stat label="AI Predictions" value={stats?.total_predictions ?? 0} icon={<TrendingUp className="h-6 w-6" />} color="from-medical-amber to-amber-600" />
-        <Stat label="Open Alerts" value={stats?.open_alerts ?? 0} icon={<AlertCircle className="h-6 w-6" />} color="from-medical-red to-red-600" />
-      </div>
+        <Stat label="Open Alerts" value={stats?.open_alerts ?? 0} icon={<AlertCircle className="h-6 w-6" />} color="from-medical-red to-red-600" />      </div>
 
       {/* Main Grid */}
       <div className="grid gap-6 lg:grid-cols-3 mb-8">
@@ -132,27 +134,35 @@ export default function AdminDashboard({ onLogout }) {
       </div>
 
       {/* Platform Statistics */}
-      <div className="grid gap-4 md:grid-cols-3 text-center">
+      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5 text-center">
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
-          <div className="text-3xl font-bold text-medical-blue-light mb-1">
-            {syncBacklog === 0 ? '0' : syncBacklog}
-          </div>
+          <div className="text-3xl font-bold text-medical-blue-light mb-1">{syncBacklog}</div>
           <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">Sync Backlog</p>
           <p className="text-xs text-medical-gray-600">Pending offline case syncs</p>
         </div>
         <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
           <div className="text-3xl font-bold text-medical-green mb-1">
-            {agreementRate === null ? 'No data yet' : `${agreementRate}%`}
+            {agreementRate === null ? '—' : `${agreementRate}%`}
           </div>
           <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">AI Agreement Rate</p>
-          <p className="text-xs text-medical-gray-600">Doctor validated AI results</p>
+          <p className="text-xs text-medical-gray-600">Doctor-validated AI results</p>
+        </div>
+        <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
+          <div className="text-3xl font-bold text-medical-amber mb-1">{pendingReviews}</div>
+          <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">Pending Reviews</p>
+          <p className="text-xs text-medical-gray-600">Cases awaiting doctor review</p>
         </div>
         <div className="rounded-lg bg-medical-red/10 border border-medical-red/20 p-6">
-          <div className="text-3xl font-bold text-medical-red mb-1">
-            {analytics?.recentAlerts?.length || 'No data yet'}
+          <div className="text-3xl font-bold text-medical-red mb-1">{criticalCases}</div>
+          <p className="text-sm font-medium text-medical-red border-b border-medical-red/20 pb-2 mb-2">Critical Cases</p>
+          <p className="text-xs text-medical-red/80">CRITICAL priority active</p>
+        </div>
+        <div className="rounded-lg bg-medical-soft-white border border-medical-gray-200 p-6">
+          <div className="text-3xl font-bold text-medical-gray-700 mb-1">
+            {realCases.length > 0 ? realCases.length : (analytics?.totalCases ?? 0)}
           </div>
-          <p className="text-sm font-medium text-medical-red border-b border-medical-red/20 pb-2 mb-2">Active Outbreak Warnings</p>
-          <p className="text-xs text-medical-red/80 font-bold">Unresolved emergencies or outbreaks</p>
+          <p className="text-sm font-medium text-medical-gray-900 border-b pb-2 mb-2">Total Cases</p>
+          <p className="text-xs text-medical-gray-600">All assessment cases</p>
         </div>
       </div>
     </DashboardLayout>

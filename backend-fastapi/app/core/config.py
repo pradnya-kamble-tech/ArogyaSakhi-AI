@@ -18,6 +18,25 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     RESET_DB: bool = False
 
+    # AI provider configuration — set in .env or environment.
+    # AI_PROVIDER: "openai" (default) or "anthropic" or "google"
+    # AI_API_KEY: your provider API key
+    # AI_MODEL: override the model name (e.g. "gpt-4o", "claude-3-haiku-20240307")
+    AI_PROVIDER: str = Field("openai", env="AI_PROVIDER")
+    AI_API_KEY: str = Field("", env=["AI_API_KEY", "OPENAI_API_KEY"])
+    AI_MODEL: str = Field("", env="AI_MODEL")  # empty = use provider default
+
+    @property
+    def resolved_ai_model(self) -> str:
+        if self.AI_MODEL:
+            return self.AI_MODEL
+        defaults = {
+            "openai": "gpt-4o-mini",
+            "anthropic": "claude-3-haiku-20240307",
+            "google": "gemini-1.5-flash",
+        }
+        return defaults.get(self.AI_PROVIDER.lower(), "gpt-4o-mini")
+
     @property
     def database_url(self) -> str:
         return (

@@ -14,6 +14,7 @@ from app.models.health_report import HealthReport
 from app.models.emergency_alert import EmergencyAlert
 from app.models.notification import Notification
 from app.models.uploaded_image import UploadedImage
+from pydantic import BaseModel
 from app.models.voice_log import VoiceLog
 from app.models.activity_log import ActivityLog
 from app.schemas.ai import SymptomCheckRequest, VoiceIntentRequest, SOSRequest, ChatRequest
@@ -23,6 +24,10 @@ from app.ml.voice_intent import classify_intent
 from app.ml.chatbot import generate_patient_chat_response
 from app.websocket.manager import manager
 from app.api.v1.analytics import _serialize_alert
+from app.core.llm_service import (
+    explain_decision, handover_note, differential_support,
+    extract_voice_symptoms, clinical_summary,
+)
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 settings = get_settings()
@@ -240,3 +245,153 @@ async def emergency_sos(
         serialized = {"id": alert.id, "message": alert.message, "patient_id": data.patient_id}
     await manager.broadcast_alert({"type": "sos", "alert": serialized})
     return {"alert_id": alert.id, "status": "dispatched"}
+
+class CaseAIRequest(BaseModel):
+    case_data: dict
+
+@router.post("/explain")
+async def ai_explain(
+    req: CaseAIRequest,
+    user: User = Depends(get_current_user)
+):
+    data = await explain_decision(req.case_data)
+    return {"explanation": data}
+
+@router.post("/handover-note")
+async def ai_handover(
+    req: CaseAIRequest,
+    user: User = Depends(get_current_user)
+):
+    data = await handover_note(req.case_data)
+    return {"note": data}
+
+@router.post("/differential")
+async def ai_differential(
+    req: CaseAIRequest,
+    user: User = Depends(get_current_user)
+):
+    data = await differential_support(req.case_data)
+    return {"differential": data}
+
+class VoiceExtractRequest(BaseModel):
+    transcript: str
+
+@router.post("/voice-extract")
+async def voice_extract(
+    req: VoiceExtractRequest,
+    user: User = Depends(get_current_user)
+):
+    data = await extract_voice_symptoms(req.transcript)
+    return {"extracted": data}
+
+
+@router.post("/clinical-summary")
+async def ai_clinical_summary(
+    req: CaseAIRequest,
+    user: User = Depends(get_current_user)
+):
+    """
+    Generate a concise clinical summary from a completed assessment case.
+    Input: full case_data dict (symptoms, vitals, engine output, ML result).
+    Output: {summary, important_findings, missing_information, uncertainty_note}
+    The LLM only narrates — deterministic risk_level is NOT overridable.
+    """
+    data = await clinical_summary(req.case_data)
+    return {"clinical_summary": data}
+
+
+@router.post("/case-image-upload")
+async def case_image_upload(
+    file: UploadFile = File(...),
+    case_id: str | None = None,
+    patient_id: str | None = None,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """
+    Upload a clinical image and associate it with an AssessmentCase.
+
+    Validates:
+      - File type must be image/jpeg, image/jpg, or image/png
+      - File size ≤ 10 MB
+
+    The visual analysis model is not validated for diagnostic use.
+    If the model is unavailable, the image is stored but analysis is skipped
+    and the response clearly states: visual_analysis_available: false.
+    """
+    # ── File type validation ──────────────────────────────────────────────────
+    allowed_types = {"image/jpeg", "image/jpg", "image/png"}
+    allowed_exts  = {".jpg", ".jpeg", ".png"}
+
+    content_type = (file.content_type or "").lower()
+    ext = Path(file.filename or "img.jpg").suffix.lower()
+
+    if content_type not in allowed_types and ext not in allowed_exts:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported file type '{content_type}'. Allowed: JPG, JPEG, PNG."
+        )
+
+    # ── Read + size validation ────────────────────────────────────────────────
+    MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+    content = await file.read()
+    if len(content) > MAX_BYTES:
+        raise HTTPException(
+            status_code=422,
+            detail=f"File too large ({len(content) // 1024} KB). Maximum allowed: 10 MB."
+        )
+
+    # ── Persist file ──────────────────────────────────────────────────────────
+    upload_dir = Path(settings.UPLOAD_DIR)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    fname = f"{uuid.uuid4()}{ext or '.jpg'}"
+    fpath = upload_dir / fname
+    fpath.write_bytes(content)
+
+    # ── Attempt visual analysis (best-effort, not medically validated) ────────
+    analysis_result = None
+    visual_analysis_available = False
+    analysis_note = (
+        "Visual analysis model unavailable. "
+        "Image has been stored and can be reviewed by a clinician."
+    )
+
+    try:
+        from app.ml.skin_detection import analyze_skin_image
+        analysis_result = analyze_skin_image(str(fpath))
+        visual_analysis_available = True
+        analysis_note = (
+            "IMPORTANT: This analysis is from a heuristic model, "
+            "NOT a validated medical diagnostic tool. "
+            "Results must be verified by a qualified clinician."
+        )
+    except Exception:
+        pass  # model unavailable — safe fallback, image is still stored
+
+    # ── Persist record ────────────────────────────────────────────────────────
+    img = UploadedImage(
+        patient_id=patient_id,
+        case_id=case_id,
+        uploader_id=user.id,
+        image_type="clinical",
+        file_path=str(fpath),
+        original_filename=file.filename,
+        file_size_bytes=len(content),
+        model_output=analysis_result,
+        confidence=analysis_result.get("confidence") if analysis_result else None,
+    )
+    db.add(img)
+    db.commit()
+    db.refresh(img)
+
+    return {
+        "image_id": img.id,
+        "case_id": case_id,
+        "patient_id": patient_id,
+        "file_path": str(fpath),
+        "file_size_bytes": len(content),
+        "visual_analysis_available": visual_analysis_available,
+        "analysis_note": analysis_note,
+        "analysis": analysis_result,
+    }
+

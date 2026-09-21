@@ -22,3 +22,8 @@ class AssessmentCase(Base):
     doctor_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     referral_facility: Mapped[str | None] = mapped_column(String(256), nullable=True)
     synced_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    # Priority derived from deterministic risk rules at sync time
+    # Values: CRITICAL | HIGH | MEDIUM | NORMAL
+    priority: Mapped[str] = mapped_column(String(16), default="NORMAL")
+    # updated_at for downstream sync conflict detection
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -79,7 +79,40 @@ def batch_sync(
         except Exception as e:
             results.append({"temp_id": temp_id, "status": "error", "error": str(e)})
 from app.models.assessment_case import AssessmentCase
+from app.models.patient_observation import PatientObservation
 import json
+
+
+def _derive_priority(risk_level: str, engine_output: dict) -> str:
+    """
+    Derive a priority level from deterministic risk data only.
+    CRITICAL: Red + red-flag vitals present
+    HIGH:     Red risk
+    MEDIUM:   Amber/Yellow risk
+    NORMAL:   Green or unknown
+    The LLM is never consulted for priority.
+    """
+    if not risk_level:
+        return "NORMAL"
+    rl = risk_level.upper()
+    if rl == "RED":
+        # Check for critical vital red-flags in engine output
+        reasons = []
+        if isinstance(engine_output, dict):
+            reasons = engine_output.get("risk", {}).get("reasons", []) or \
+                      engine_output.get("reasons", []) or []
+        critical_keywords = [
+            "critical", "spo2", "bp systolic", "seizure", "unconscious",
+            "bleeding", "not breathing", "cardiac",
+        ]
+        is_critical = any(
+            any(kw in str(r).lower() for kw in critical_keywords)
+            for r in reasons
+        )
+        return "CRITICAL" if is_critical else "HIGH"
+    if rl in ("AMBER", "YELLOW"):
+        return "MEDIUM"
+    return "NORMAL"
 
 @router.post("/cases")
 def sync_cases(
@@ -106,6 +139,7 @@ def sync_cases(
             engine_output = item.get("engine_output", {})
             risk_level = engine_output.get("category", "Unknown")
             escalation = "Yes" if risk_level in ["Red", "Amber"] else "No"
+            priority = _derive_priority(risk_level, engine_output)
             
             case = AssessmentCase(
                 client_uuid=client_uuid,
@@ -116,14 +150,81 @@ def sync_cases(
                 engine_output=engine_output,
                 risk_level=risk_level,
                 escalation=escalation,
+                priority=priority,
                 status="pending_review"
             )
             db.add(case)
             db.commit()
-            
+
+            # Auto-record vitals as a PatientObservation for trend tracking
+            v = item.get("vitals", {}) or {}
+            if v:
+                obs = PatientObservation(
+                    case_id=client_uuid,
+                    patient_id=None,  # no patient_id at sync time
+                    worker_id=user.id,
+                    bp_systolic=float(v["bp_systolic"]) if v.get("bp_systolic") else None,
+                    bp_diastolic=float(v["bp_diastolic"]) if v.get("bp_diastolic") else None,
+                    heart_rate=float(v["heart_rate"]) if v.get("heart_rate") else None,
+                    temperature=float(v["temperature"]) if v.get("temperature") else None,
+                    spo2=float(v["spo2"]) if v.get("spo2") else None,
+                    respiratory_rate=float(v["respiratory_rate"]) if v.get("respiratory_rate") else None,
+                    blood_sugar=float(v["blood_sugar"]) if v.get("blood_sugar") else None,
+                    hb=float(v["hb"]) if v.get("hb") else None,
+                    risk_level=risk_level,
+                    notes="Auto-recorded at case sync",
+                )
+                db.add(obs)
+                db.commit()
+
             results.append({"client_uuid": client_uuid, "status": "ok"})
         except Exception as e:
             db.rollback()
             results.append({"client_uuid": client_uuid, "status": "error", "error": str(e)})
             
     return {"synced": results}
+
+
+@router.get("/downstream")
+def downstream_sync(
+    since: str | None = None,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles("PCW", "ASHA_WORKER")),
+):
+    """
+    Return cases that changed on the server since the given ISO timestamp.
+    Used for pull-based downstream sync from rural worker devices.
+    Returns: { cases: [...], server_time: ISO }
+    """
+    from datetime import datetime as dt
+    from app.models.assessment_case import AssessmentCase
+
+    q = db.query(AssessmentCase).filter(AssessmentCase.worker_id == user.id)
+    if since:
+        try:
+            since_dt = dt.fromisoformat(since.replace("Z", "+00:00"))
+            q = q.filter(AssessmentCase.updated_at >= since_dt)
+        except ValueError:
+            pass  # invalid timestamp — return all
+
+    cases = q.order_by(AssessmentCase.synced_at.desc()).limit(200).all()
+    return {
+        "cases": [
+            {
+                "client_uuid": c.client_uuid,
+                "patient_name": c.patient_name,
+                "patient_age": c.patient_age,
+                "risk_level": c.risk_level,
+                "priority": c.priority,
+                "status": c.status,
+                "doctor_notes": c.doctor_notes,
+                "final_diagnosis": c.final_diagnosis,
+                "referral_facility": c.referral_facility,
+                "escalation": c.escalation,
+                "synced_at": c.synced_at.isoformat() if c.synced_at else None,
+                "updated_at": c.updated_at.isoformat() if c.updated_at else None,
+            }
+            for c in cases
+        ],
+        "server_time": dt.utcnow().isoformat(),
+    }

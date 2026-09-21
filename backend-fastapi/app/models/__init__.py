@@ -16,6 +16,8 @@ from .health_report import HealthReport
 from .chat_log import ChatLog
 from .doctor_assignment import DoctorAssignment
 from .refresh_token import RefreshToken
+from .assessment_case import AssessmentCase
+from .specialist_consultation import SpecialistConsultation
 
 __all__ = [
     "User",
@@ -36,4 +38,6 @@ __all__ = [
     "ChatLog",
     "DoctorAssignment",
     "RefreshToken",
+    "AssessmentCase",
+    "SpecialistConsultation"
 ]

@@ -7,6 +7,7 @@ from app.models.hospital import Hospital
 from app.models.activity_log import ActivityLog
 from app.models.emergency_alert import EmergencyAlert
 from app.models.ai_prediction import AIPrediction
+from app.models.assessment_case import AssessmentCase
 from app.models.patient import Patient
 from app.models.notification import Notification
 
@@ -71,7 +72,7 @@ def platform_stats(db: Session = Depends(get_db), user: User = Depends(require_r
     return {
         "total_users": db.query(User).count(),
         "total_patients": db.query(Patient).count(),
-        "total_predictions": db.query(AIPrediction).count(),
+        "total_predictions": db.query(AssessmentCase).count(),
         "open_alerts": db.query(EmergencyAlert).filter(EmergencyAlert.status == "open").count(),
         "engine_status": "online",
     }
